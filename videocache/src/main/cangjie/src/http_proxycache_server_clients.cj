@@ -40,6 +40,7 @@ public class HttpProxyCacheServerClients {
     private func newHttpProxyCache(): HttpProxyCache {
         let configTemp = this.config.getOrThrow {=> NoneValueException("proxyCache is null")}
         let source = HttpUrlSource(this.url, configTemp.sourceInfoStorage, configTemp.headerInjector)
+        //在这里决定了缓存目录
         let cache = FileCache(configTemp.generateCacheFile(this.url), configTemp.diskUsage)
         let httpProxyCache = HttpProxyCache(source, cache)
         httpProxyCache.registerCacheListener(this.uiCacheListener)

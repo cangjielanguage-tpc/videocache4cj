@@ -57,7 +57,6 @@ public class HttpProxyCacheServerBuilder {
      */
     public func maxCacheSize(maxSize: Int64): HttpProxyCacheServerBuilder {
         this.diskUsage = TotalSizeLruDiskUsage(maxSize)
-        (this.diskUsage.getOrThrow() as TotalSizeLruDiskUsage).getOrThrow().initEmitter()
         return this
     }
 
@@ -71,7 +70,6 @@ public class HttpProxyCacheServerBuilder {
      */
     public func maxCacheFilesCount(count: Int64): HttpProxyCacheServerBuilder {
         this.diskUsage = TotalCountLruDiskUsage(count)
-        (this.diskUsage.getOrThrow() as TotalCountLruDiskUsage).getOrThrow().initEmitter()
         return this
     }
 
@@ -112,7 +110,6 @@ public class HttpProxyCacheServerBuilder {
         }
         if (this.diskUsage.isNone()) {
             this.diskUsage = TotalSizeLruDiskUsage(this.DEFAULT_MAX_SIZE)
-            (this.diskUsage.getOrThrow() as TotalSizeLruDiskUsage).getOrThrow().initEmitter()
         }
         if (this.fileNameGenerator.isNone()) {
             this.fileNameGenerator = Md5FileNameGenerator()

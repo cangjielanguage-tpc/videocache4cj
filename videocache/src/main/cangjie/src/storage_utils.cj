@@ -8,21 +8,11 @@ public class StorageUtils {
     public static let DEFAULT_DIR: String = '/data/storage/el2/base/haps/entry/cache'
 
     public static func getIndividualCacheDirectory(context: AbilityContext): String {
-        let cacheDir = StorageUtils.getCacheDirectory(context, true)
+        let cacheDir = StorageUtils.getCacheDirectory()
         return cacheDir.getOrThrow() + '/' + StorageUtils.INDIVIDUAL_DIR_NAME
     }
 
-    private static func getCacheDirectory(context: AbilityContext, preferExternal: Bool): ?String {
-        var appCacheDir: ?String = None
-        try {
-            if (preferExternal) {
-                appCacheDir = context.filesDir
-            } else {
-                appCacheDir = StorageUtils.DEFAULT_DIR
-            }
-        } catch (e: Exception) { // (sh)it happens
-            appCacheDir = StorageUtils.DEFAULT_DIR
-        }
-        return appCacheDir
+    private static func getCacheDirectory(): ?String {
+        return StorageUtils.DEFAULT_DIR
     }
 }

@@ -19,11 +19,11 @@ public open class ProxyCache {
         this.stopped = false
     }
 
-    public func read(buffer: ByteArrayStream, offset: Int64, length: Int64): Int64 {
+    public func read(buffer: Array<UInt8>, offset: Int64, length: Int64): Int64 {
         if (let Some(i) <- this.cache) {
             while (!i.isCompleted() && i.available() < (offset + length) && !this.stopped) {
                 this.readSourceAsync()
-                this.waitForSourceData()
+                sleep(Duration.second * 1)
                 this.checkReadSourceErrorsCount()
             }
             let read = i.read(buffer, offset, length)
@@ -114,21 +114,24 @@ public open class ProxyCache {
     }
 
     private func readSource(): Unit {
-        let cacheTemp = this.cache.getOrThrow {=> NoneValueException("cache is null")}
-        let sourceTemp = this.source.getOrThrow {=> NoneValueException("source is null")}
-        let sourceAvailable = -1
-        var offset = 0
-        try {
-            offset = cacheTemp.available()
-            sourceTemp.setDataListener(MyDataBackListener(this, offset, sourceAvailable))
-            this.readingInProgress = true
-            sourceTemp.open(offset)
-            this.readingInProgress = false
-            return
-        } catch (e: Exception) {
-            this.readingInProgress = false
-            this.readSourceErrorsCount++
-            this.onError(e)
+        spawn {
+            let cacheTemp = this.cache.getOrThrow {=> NoneValueException("cache is null")}
+            let sourceTemp = this.source.getOrThrow {=> NoneValueException("source is null")}
+
+            let sourceAvailable = -1
+            var offset = 0
+            try {
+                offset = cacheTemp.available()
+                sourceTemp.setDataListener(MyDataBackListener(this, offset, sourceAvailable))
+                this.readingInProgress = true
+                sourceTemp.open(offset)
+                this.readingInProgress = false
+                return
+            } catch (e: Exception) {
+                this.readingInProgress = false
+                this.readSourceErrorsCount++
+                this.onError(e)
+            }
         }
     }
 

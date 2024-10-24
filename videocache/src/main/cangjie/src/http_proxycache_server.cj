@@ -62,12 +62,13 @@ public class HttpProxyCacheServer {
             let requestArg: NetAddress = NetAddress(this.PROXY_HOST, 1, this.port)
             this.serverSocket = TcpServerSocket(bindAt: this.port)
             this.serverSocket.getOrThrow().bind()
+
             spawn {
                 while (true) {
                     let client: TcpSocket = this.serverSocket.getOrThrow().accept()
                     var readCount = 0
                     var bufTotal: ArrayList<UInt8> = ArrayList<UInt8>()
-                    let buf = Array<UInt8>(1024, {i: Int64 => return 0})
+                    let buf = Array<UInt8>(4 * 1024, {i: Int64 => return 0})
                     readCount = client.read(buf)
                     if (readCount > 0) {
                         let usefulBuf = buf.slice(0, readCount)
@@ -124,8 +125,9 @@ public class HttpProxyCacheServer {
                         }
                     )
                 )
-                syncCount.waitUntilZero(timeout:Duration.second * 6)
+                syncCount.waitUntilZero(timeout: Duration.second * 6)
             }
+
             let result = this.isAlive()
             if (result) {
                 return this.appendToProxyUrl(url)
@@ -227,8 +229,8 @@ public class HttpProxyCacheServer {
         let event: InnerEvent = InnerEvent(VideoCacheConstant.SHUT_DOWN_TASKPOOL, priority: EventPriority.IMMEDIATE)
         Emitter.emit(event)
         this.shutdownClients()
-        if(let Some(i) <- this.config){
-             i.sourceInfoStorage.release()
+        if (let Some(i) <- this.config) {
+            i.sourceInfoStorage.release()
         }
         this.serverSocket.getOrThrow().close()
         Emitter.off(VideoCacheConstant.PING_EVENT_ID)

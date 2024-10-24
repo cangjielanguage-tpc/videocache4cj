@@ -33,6 +33,25 @@ public class HttpProxyCacheServer {
      * 
      */
     public func shutdown(): Unit
+    
+    
+    /**
+     * 注册缓存监听
+     *
+     * @参数 cacheListener - CacheListener数据类型，缓存监听
+     * @参数 url - String数据类型，下载的视频url
+     */
+    public func registerCacheListener(cacheListener: CacheListener, url: String): Unit 
+
+    
+    /**
+     * 取消注册缓存监听
+     *
+     * @参数 cacheListener - CacheListener数据类型，缓存监听
+     * @参数 url - String数据类型，下载的视频url
+     */
+    public func unregisterCacheListener(cacheListener: CacheListener, url: String): Unit
+
 }
 ```
 
@@ -47,5 +66,60 @@ public class HttpProxyCacheServerBuilder {
      * @返回值 HttpProxyCacheServer 代理缓存服务类对象
      */
     public func build(): HttpProxyCacheServer 
+    
+    
+    /**
+     * 设置缓存目录
+     * 
+     * @参数 file - String缓存文件的目录
+     * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
+     */
+    public func cacheDirectory(file: String): HttpProxyCacheServerBuilder
+    
+    
+    /**
+     * 设置文件名生成规则
+     * 
+     * @参数 fileNameGenerator - FileNameGenerator文件名生成规则类
+     * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
+     */
+    public func setFileNameGenerator(fileNameGenerator: FileNameGenerator): HttpProxyCacheServerBuilder
+
+
+    /**
+     * 设置最大缓存大小
+     * 
+     * @参数 maxSize - Int64最大缓存大小 单位字节
+     * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
+     */
+    public func maxCacheSize(maxSize: Int64): HttpProxyCacheServerBuilder
+
+    
+    /**
+     * 设置最大缓存数量大小
+     * 
+     * @参数 count - 缓存文件的数量
+     * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
+     */
+    public func maxCacheFilesCount(count: Int64): HttpProxyCacheServerBuilder
+
+
+    /**
+     * 设置自定义缓存清理策略
+     * 
+     * @参数 diskUsage - DiskUsage 自定义缓存策略
+     * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
+     */
+    public func setDiskUsage(diskUsage: DiskUsage): HttpProxyCacheServerBuilder
+    
+    
+     /**
+     * 设置自定义请求头
+     * 
+     * @参数 headerInjector - HeaderInjector 自定义请求头
+     * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
+     */
+    public func setHeaderInjector(headerInjector: HeaderInjector): HttpProxyCacheServerBuilder
+
 }
 ```

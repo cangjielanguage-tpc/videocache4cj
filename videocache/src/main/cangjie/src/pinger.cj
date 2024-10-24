@@ -84,7 +84,7 @@ public class Pinger {
                         }
                     )
                 )
-                syncCount.waitUntilZero(timeout:Duration.second * 6)
+                syncCount.waitUntilZero(timeout: Duration.second * 6)
                 //到上面为止停止
                 if (pingData) {
                     break
@@ -102,8 +102,8 @@ public class Pinger {
             return pingData
         } else {
             let proxy = getDefaultProxies()
-            let error = "Error pinging server (attempts: ${attempts}, max timeout: ${timeout / 2})."
-            AppLog.error("testhhs " + error + ProxyCacheException(error).toString())
+            let error = "Error pinging server (attempts: ${attempts}, max timeout: ${timeout / 2})"
+            AppLog.error(error + ProxyCacheException(error).toString())
             return false
         }
     }

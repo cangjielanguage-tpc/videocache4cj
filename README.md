@@ -153,7 +153,14 @@ class MyView {
             Column {
                 Button(message).onClick {
                             var originUrl = "https://vodpub1.v.news.cn/original/20230915/e6520e0158e44a7383bd137bd42f4451.mp4"
-                            var server: HttpProxyCacheServer = HttpProxyCacheServerBuilder(globalAbilityContext.getOrThrow()).build()
+                            var server: HttpProxyCacheServer = HttpProxyCacheServerBuilder(globalAbilityContext.getOrThrow())
+                            .cacheDirectory("自定义缓存目录")  //可选
+                            .setFileNameGenerator("自定义文件命名规则类") //可选
+                            .setHeaderInjector("自定义请求头类")  //可选
+                            //.maxCacheSize(1024*1024*1024) //最大文件缓存 配合的是TotalCountLruDiskUsage //可选
+                            //.maxCacheFilesCount(10) //最大缓存数量 配合的是TotalSizeLruDiskUsage //可选
+                            .setDiskUsage("自定义缓存清理策略") //不设置默认走LrudiskUsage //可选
+                            .build()
                             GlobalProxyServer.getInstance().setServer(server)
                             let tempUrl =  GlobalProxyServer.getInstance().getServer().getProxyUrl(originUrl,true)
                             if(tempUrl.get().size>0){
@@ -161,6 +168,7 @@ class MyView {
                             }else{
                                 proxyUrl = originUrl
                             }
+                            //this.avPlayer.url = proxyUrl; 把代理url地址赋值给播放器
                             Hilog.error(0x0000,"proxyUrl","${proxyUrl}")
                 }.fontSize(40).height(80)
             }.width(100.percent)

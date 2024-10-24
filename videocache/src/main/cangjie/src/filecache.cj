@@ -62,7 +62,8 @@ public class FileCache <: Cache {
             try {
                 this.dataFile = FileFs.createRandomAccessFile(this.trueFilePath, mode: (CREATE.mode | READ_ONLY.mode))
             } catch (e: Exception) {
-                throw ProxyCacheException("Error opening " + this.trueFilePath + " as disc cache,reason is : " + e.message)
+                throw ProxyCacheException("Error opening " + this.trueFilePath + " as disc cache,reason is : " + e.
+                    message)
             }
         } catch (e: Exception) {
             throw ProxyCacheException(
@@ -111,7 +112,7 @@ public class FileCache <: Cache {
         }
     }
 
-    public override func read(buffer: ByteArrayStream, offset: Int64, length: Int64): Int64 {
+    public override func read(buffer: Array<UInt8>, offset: Int64, length: Int64): Int64 {
         try {
             if (!this.isRenamedEnd) {
                 return -1
@@ -126,7 +127,6 @@ public class FileCache <: Cache {
             if (offset >= this.available()) {
                 return -1
             }
-
             var tempLength: Int64 = 0
             if (offset + length >= this.fileLength && this.fileLength > 0) {
                 tempLength = this.fileLength - offset
@@ -135,11 +135,11 @@ public class FileCache <: Cache {
             } else {
                 tempLength = length
             }
-            let readLength = FileFs.read(this.dataFile.fd, buffer.bytes(),
+            let readLength = FileFs.read(this.dataFile.fd, buffer,
                 options: ReadOptions(length: UIntNative(tempLength), offset: offset))
             return readLength
         } catch (e: Exception) {
-            let format = "Error reading ${length} bytes with offset ${offset} from file[${this.available()} bytes] to buffer[${buffer.length} bytes], readon is : ${e.message}"
+            let format = "Error reading ${length} bytes with offset ${offset} from file[${this.available()} bytes] to buffer[${buffer.size} bytes], readon is : ${e.message}"
             throw ProxyCacheException(format)
         }
     }
@@ -149,7 +149,8 @@ public class FileCache <: Cache {
             let size = FileFs.stat(this.tempFilePath).size
             return size
         } catch (e: Exception) {
-            throw ProxyCacheException("Error reading length of file " + this.tempFilePath + ",reason is :    " + e.message)
+            throw ProxyCacheException("Error reading length of file " + this.tempFilePath + ",reason is :    " + e.
+                message)
         }
     }
 

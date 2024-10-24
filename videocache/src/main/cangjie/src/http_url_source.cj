@@ -238,10 +238,10 @@ public class HttpUrlSource <: Source {
             this.connection = openConnection()
             let connectionTemp = this.connection.getOrThrow {=> NoneValueException("openConnection fail")}
             let callbackTemp = this.callBack.getOrThrow {=> NoneValueException("callBack is null")}
+
             connectionTemp.onHeadersReceive(
                 {
-                headers => //
-                if (sourceInfoTemp.url.indexOf("ping").isSome()) {
+                headers => if (sourceInfoTemp.url.indexOf("ping").isSome()) {
                     callbackTemp.onDataStart()
                 } else {
                     if (!headers.isEmpty()) {
@@ -265,6 +265,7 @@ public class HttpUrlSource <: Source {
                     this.isHeaderDealFinish = true
                 }
             })
+
             connectionTemp.onDataReceive(
                 {
                     data =>
@@ -332,8 +333,10 @@ public class HttpUrlSource <: Source {
         try {
             let syncCount = SyncCounter(1)
             urlConnection = this.openConnection()
+
             let urlConnectionTemp = urlConnection.getOrThrow {=> NoneValueException("openConnection fail")}
             let sourceInfoTemp = this.sourceInfo.getOrThrow {=> NoneValueException("sourceInfo is null")}
+
             urlConnectionTemp.onceHeadersReceive(
                 {
                     headers =>
@@ -361,7 +364,7 @@ public class HttpUrlSource <: Source {
             let option = this.initRequestParam(0, Duration.millisecond * 10000)
             urlConnectionTemp.requestInStream(sourceInfoTemp.url, {e: ?BusinessException, value: ?UInt32 =>},
                 options: option)
-            syncCount.waitUntilZero(timeout:Duration.second * 6)
+            syncCount.waitUntilZero(timeout: Duration.second * 6)
             urlConnectionTemp.destroy()
             return
         } catch (e: Exception) {
@@ -447,6 +450,7 @@ public class HttpUrlSource <: Source {
         } else {
             this.fetchContentInfo()
         }
+
         if (let Some(i) <- this.sourceInfo) {
             if (i.mime.size > 0) {
                 return i.mime
@@ -471,7 +475,7 @@ public class HttpUrlSource <: Source {
         } else {
             syncCount.dec()
         }
-        syncCount.waitUntilZero(timeout:Duration.second * 6)
+        syncCount.waitUntilZero(timeout: Duration.second * 6)
     }
 
     public func getUrl(): String {
