@@ -8,7 +8,7 @@ public interface Cache {
 
     func totalLength(): Int64
 
-    func read(buffer: ByteArrayStream, offset: Int64, length: Int64): Int64
+    func read(buffer: Array<UInt8>, offset: Int64, length: Int64): Int64
 
     func append(data: ByteArrayStream, length: Int64): Unit
 

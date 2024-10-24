@@ -62,15 +62,15 @@ public class HttpProxyCache <: ProxyCache {
 
     //仔细调试
     private func responseWithCache(offset: Int64, serverConnect: TcpSocket): Unit {
-        let buff = ByteArrayStream(ProxyCacheUtils.DEFAULT_BUFFER_SIZE)
+        let buff = Array<UInt8>(ProxyCacheUtils.DEFAULT_BUFFER_SIZE, {i: Int64 => return 0})
         var tempoffset = offset
         while (true) {
             let readBytes = this.read(buff, tempoffset, ProxyCacheUtils.DEFAULT_BUFFER_SIZE)
-            if (readBytes == 0) {
+            if (readBytes == -1) {
                 break
             }
             try {
-                let trueBuff = buff.bytes().slice(0, readBytes)
+                let trueBuff = buff.slice(0, readBytes)
 
                 if (this.stopped) {
                     break
@@ -126,6 +126,7 @@ public class HttpProxyCache <: ProxyCache {
         } else {
             length = sourceTemp.length()
         }
+
         let lengthKnown = length >= 0
         var contentLength: Int64 = 0
         if (request.partial) {
@@ -140,12 +141,14 @@ public class HttpProxyCache <: ProxyCache {
         } else {
             lengthStr = ""
         }
+
         var rangeStr: String = ""
         if (addRange) {
             rangeStr = "Content-Range: bytes ${request.rangeOffset}-${length - 1}/${length}${"\n"}"
         } else {
             rangeStr = ""
         }
+
         var mimeStr: String = ""
         if (mimeKnown) {
             mimeStr = "Content-Type: ${mime}${"\n"}"
@@ -154,6 +157,7 @@ public class HttpProxyCache <: ProxyCache {
         }
         let str1 = "HTTP/1.1 206 PARTIAL CONTENT${"\n"}${"Accept-Ranges: bytes\n"}${lengthStr}${rangeStr}${mimeStr}${"\n"}"
         let str2 = "HTTP/1.1 200 OK${"\n"}${"Accept-Ranges: bytes\n"}${lengthStr}${rangeStr}${mimeStr}${"\n"}"
+
         if (request.partial) {
             return str1
         } else {

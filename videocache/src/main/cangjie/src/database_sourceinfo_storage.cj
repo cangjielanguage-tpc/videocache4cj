@@ -24,10 +24,10 @@ public class DatabaseSourceInfoStorage <: SourceInfoStorage {
     }
 
     private func createTable() {
-         if(let Some(i) <- store){
-            try{
+        if (let Some(i) <- store) {
+            try {
                 i.executeSql(this.CREATE_SQL)
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 AppLog.error("message ${e.message}")
             }
         }
@@ -46,7 +46,7 @@ public class DatabaseSourceInfoStorage <: SourceInfoStorage {
     }
 
     public override func put(url: String, sourceInfo: SourceInfo): Unit {
-        let storeTemp = this.store.getOrThrow{=>NoneValueException("store is not create")}
+        let storeTemp = this.store.getOrThrow {=> NoneValueException("store is not create")}
         try {
             let sourceInfoFromDb = get(url)
             let exist = sourceInfoFromDb.isSome()
@@ -65,7 +65,7 @@ public class DatabaseSourceInfoStorage <: SourceInfoStorage {
     }
 
     public override func get(url: String): ?SourceInfo {
-        let storeTemp = this.store.getOrThrow{=>NoneValueException("store is null")}
+        let storeTemp = this.store.getOrThrow {=> NoneValueException("store is null")}
         var resultSet: ?ResultSet = None
         try {
             let predicates = RdbPredicates(this.TABLE)

@@ -23,4 +23,3 @@ internal import std.time.*
 internal import std.collection.*
 internal import crypto.digest.*
 internal import encoding.hex.*
-internal import ohos.hilog.*

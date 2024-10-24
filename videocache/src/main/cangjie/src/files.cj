@@ -28,13 +28,13 @@ public class Files {
             let files = FileFs.listFile(directory, options: option)
             if (files.size > 0) {
                 for (i in 0..files.size) {
-                    result.append(directory + '/' + files[i])
+                    result.append(directory + files[i])
                 }
                 let len = result.size
                 for (i in 0..len - 1) {
                     for (j in 0..len - 1 - i) {
-                        let before = FileFs.stat(result[j]).mtime
-                        let after = FileFs.stat(result[j + 1]).mtime
+                        let before = FileFs.stat(result[j]).ctime
+                        let after = FileFs.stat(result[j + 1]).ctime
                         // 相邻元素两两对比，元素交换，大的元素交换到后面
                         if (before > after) { //	< 为升序排列，降序请换 >
                             let temp: String = result[j]
@@ -53,7 +53,7 @@ public class Files {
         if (FileFs.access(file)) {
             try {
                 //TODO
-                FileFs.utimes(file, Float64(DateTime.now().second))
+                FileFs.utimes(file, Float64(DateTime.now().toUnixTimeStamp().toNanoseconds()))
             } catch (e: Exception) {
                 throw IOException("Last modified date is not set for file ${file},reason is ${e.message}")
             }
