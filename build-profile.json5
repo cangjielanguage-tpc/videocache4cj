@@ -1,0 +1,53 @@
+{
+  "app": {
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compatibleSdkVersion": "5.0.0(12)",
+        "runtimeOS": "HarmonyOS"
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug"
+      },
+      {
+        "name": "release"
+      }
+    ],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\admin\\.ohos\\config\\default_ohos_ijkplayer_ne3kDW2Oy_BHloDhJpZA1jf3Pq3OM3pIuUP8iGTyCKE=.cer",
+          "storePassword": "0000001B8FF4878D5AC6AC17C1F73614AE6826BCE5EFCB9401D39E53650166F1B19D7CD64C8298FB8942C9",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001BAB2503A10EFE3534D75765DD387BF0B7E3592B43A396401AC7B0DA16B3B269A0C5B3CD68F0589B",
+          "profile": "C:\\Users\\admin\\.ohos\\config\\default_ohos_ijkplayer_ne3kDW2Oy_BHloDhJpZA1jf3Pq3OM3pIuUP8iGTyCKE=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\admin\\.ohos\\config\\default_ohos_ijkplayer_ne3kDW2Oy_BHloDhJpZA1jf3Pq3OM3pIuUP8iGTyCKE=.p12"
+        }
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ijkplayer",
+      "srcPath": "./ijkplayer"
+    }
+  ]
+}

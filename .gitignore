@@ -1,2 +1,12 @@
-# Google App Engine generated folder
-appengine-generated/
+/node_modules
+/local.properties
+/.idea
+**/build
+package-lock.json
+/.hvigor
+.clang-format
+.clang-tidy
+.clangd
+@ohos
+.vscode
+.vs
