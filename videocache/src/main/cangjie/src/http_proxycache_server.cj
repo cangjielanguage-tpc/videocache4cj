@@ -36,9 +36,7 @@ public class HttpProxyCacheServer {
         try {
             let m: Random = Random()
             this.port = UInt16(round((m.nextFloat64() * (65535.0 - 1024.0)) + 1024.0))
-            spawn {
-                this.waitForRequest()
-            }
+            this.waitForRequest()
         } catch (e: Exception) {
             throw IllegalStateException("Error starting local proxy server " + e.message)
         }
@@ -49,9 +47,7 @@ public class HttpProxyCacheServer {
         try {
             let m: Random = Random()
             this.port = UInt16(round((m.nextFloat64() * (65535.0 - 1024.0)) + 1024.0))
-            spawn {
-                this.waitForRequest()
-            }
+            this.waitForRequest()
         } catch (e: Exception) {
             throw IllegalStateException("Error starting local proxy server " + e.message)
         }
@@ -62,13 +58,13 @@ public class HttpProxyCacheServer {
             let requestArg: NetAddress = NetAddress(this.PROXY_HOST, 1, this.port)
             this.serverSocket = TcpServerSocket(bindAt: this.port)
             this.serverSocket.getOrThrow().bind()
-
             spawn {
                 while (true) {
                     let client: TcpSocket = this.serverSocket.getOrThrow().accept()
                     var readCount = 0
                     var bufTotal: ArrayList<UInt8> = ArrayList<UInt8>()
                     let buf = Array<UInt8>(4 * 1024, {i: Int64 => return 0})
+
                     readCount = client.read(buf)
                     if (readCount > 0) {
                         let usefulBuf = buf.slice(0, readCount)
@@ -79,8 +75,6 @@ public class HttpProxyCacheServer {
             }
             this.pinger = Pinger(this.PROXY_HOST, this.port)
             this.isServerReady = true
-            let event: InnerEvent = InnerEvent(VideoCacheConstant.SERVER_READY_ID, priority: EventPriority.IMMEDIATE)
-            Emitter.emit(event)
             return
         } catch (e: Exception) {
             throw e
@@ -88,21 +82,21 @@ public class HttpProxyCacheServer {
     }
 
     func processSocket(requestInfo: Array<UInt8>, severConnect: TcpSocket) {
-        try {
-            let request = GetRequest.read(requestInfo)
-            let url = request.uri
-            if (this.pinger.getOrThrow().isPingRequest(url)) {
-                this.pinger.getOrThrow().responseToPing(severConnect)
-            } else {
-                let clients = getClients(url)
-                clients.processRequest(request, severConnect)
+        spawn {
+            try {
+                let request = GetRequest.read(requestInfo)
+                let url = request.uri
+                if (this.pinger.getOrThrow().isPingRequest(url)) {
+                    this.pinger.getOrThrow().responseToPing(severConnect)
+                } else {
+                    let clients = getClients(url)
+                    clients.processRequest(request, severConnect)
+                }
+            } catch (e: Exception) {
+                this.onError(ProxyCacheException("Error processing request,reason is : " + e.message))
             }
-        } catch (e: Exception) {
-            this.onError(ProxyCacheException("Error processing request,reason is : " + e.message))
         }
     }
-
-    var isLoopValue: Bool = true
 
     public func getProxyUrl(url: String, allowCachedFileUri: Bool): Future<String> {
         let res: Future<String> = spawn {
@@ -111,23 +105,6 @@ public class HttpProxyCacheServer {
                 this.touchFileSafely(cacheFile)
                 return cacheFile
             }
-            // 以下代码是为了确保服务器准备好了 不加这里的逻辑 很可能服务器没初始化，导致下面的isAlive直接返回false，逻辑就不走代理了
-            if (this.isServerReady) {
-            } else {
-                let syncCount = SyncCounter(1)
-                let event: InnerEvent = InnerEvent(VideoCacheConstant.SERVER_READY_ID)
-                Emitter.on(
-                    event,
-                    EventCallback(
-                        "SERVER_READY_ID",
-                        {
-                            data: EventData => syncCount.dec()
-                        }
-                    )
-                )
-                syncCount.waitUntilZero(timeout: Duration.second * 6)
-            }
-
             let result = this.isAlive()
             if (result) {
                 return this.appendToProxyUrl(url)

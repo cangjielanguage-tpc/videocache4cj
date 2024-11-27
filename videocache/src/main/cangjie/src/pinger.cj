@@ -44,28 +44,23 @@ public class Pinger {
             try {
                 let syncCount = SyncCounter(1)
                 let event: InnerEvent = InnerEvent(VideoCacheConstant.PING_EVENT_ID)
-                Emitter.on(
-                    event,
-                    EventCallback(
-                        "PING_EVENT_ID",
-                        {
-                            data: EventData =>
-                            let dataMap: HashMap<String, EventDataType> = data.data
-                            let fileEventDataType: Option<EventDataType> = dataMap.get("content")
-                            if (let Some(i) <- fileEventDataType) {
-                                match (i) {
-                                    case BOOL(v3) =>
-                                        pingData = v3
-                                        syncCount.dec()
-                                    case _ => ()
-                                }
-                            } else {
-                                pingData = false
-                                syncCount.dec()
-                            }
+
+                var eventTemp: (EventData) -> Unit = {
+                    data: EventData =>
+                    let dataMap: HashMap<String, EventDataType> = data.data
+                    let fileEventDataType: Option<EventDataType> = dataMap.get("content")
+                    if (let Some(i) <- fileEventDataType) {
+                        match (i) {
+                            case BOOL(v3) => pingData = v3
+                            case _ => ()
                         }
-                    )
-                )
+                    } else {
+                        pingData = false
+                    }
+                    Emitter.off(VideoCacheConstant.PING_EVENT_ID)
+                    syncCount.dec()
+                }
+                Emitter.on(event, EventCallback("PING_EVENT_ID", eventTemp))
                 let url = getPingUrl()
                 spawn {
                     pingCallable(url)

@@ -62,8 +62,8 @@ public class HttpProxyCacheServerClients {
     public func unregisterCacheListener(cacheListener: CacheListener): Unit {
         this.listeners.removeIf(
             {
-            listener: CacheListener => return (listener as UiListenerHandler).getOrThrow().url ==
-                (cacheListener as UiListenerHandler).getOrThrow().url
+            listener: CacheListener => return refEq((listener as Object).getOrThrow(),
+                (cacheListener as Object).getOrThrow())
         })
     }
 

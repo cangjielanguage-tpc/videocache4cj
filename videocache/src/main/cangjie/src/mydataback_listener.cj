@@ -29,12 +29,12 @@ public class MyDataBackListener <: DataBackListener {
         proxyCache.setFileLength(sourceAvailable)
     }
 
-    public override func onDataReceive(data: ByteArrayStream): Unit {
+    public override func onDataReceive(data: Array<UInt8>): Unit {
         if (proxyCache.isStopped()) {
             return
         }
-        proxyCache.cache.getOrThrow().append(data, data.length)
-        offset += data.length
+        proxyCache.cache.getOrThrow().append(data, data.size)
+        offset += data.size
         proxyCache.notifyNewCacheDataAvailable(offset, sourceAvailable)
     }
 
