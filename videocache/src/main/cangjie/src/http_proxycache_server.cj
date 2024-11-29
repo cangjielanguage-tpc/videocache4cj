@@ -100,7 +100,7 @@ public class HttpProxyCacheServer {
 
     public func getProxyUrl(url: String, allowCachedFileUri: Bool): Future<String> {
         let res: Future<String> = spawn {
-            if (allowCachedFileUri && this.isCached(url)) {
+            if (allowCachedFileUri && this.isCached(url) && !url.endsWith(".m3u8")) {
                 let cacheFile = this.getCacheFile(url)
                 this.touchFileSafely(cacheFile)
                 return cacheFile
