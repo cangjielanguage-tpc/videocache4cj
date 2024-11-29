@@ -17,9 +17,9 @@ public class TempPingDataBackListener <: DataBackListener {
     public override func onDataStart() {
     }
 
-    public override func onDataReceive(data: ByteArrayStream) {
-        if (data.bytes().size > 0) {
-            let response: String = data.readString()
+    public override func onDataReceive(data: Array<UInt8>) {
+        if (data.size > 0) {
+            let response: String = String.fromUtf8(data)
             AppLog.info("Ping response: `" + response + "`, pinged? " + pingResult.toString())
             pingResult = expectedResponse == response
             let p = HashMap<String, EventDataType>()

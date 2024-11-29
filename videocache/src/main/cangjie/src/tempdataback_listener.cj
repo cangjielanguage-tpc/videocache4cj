@@ -25,10 +25,10 @@ public class TempDataBackListener <: DataBackListener {
         this.httpProxyCache.getOrThrow().receiveSize = offset
     }
 
-    public override func onDataReceive(data: ByteArrayStream) {
-        this.httpProxyCache.getOrThrow().receiveSize += data.length
+    public override func onDataReceive(data: Array<UInt8>) {
+        this.httpProxyCache.getOrThrow().receiveSize += data.size
         try {
-            serverConnect.getOrThrow().write(data.bytes())
+            serverConnect.getOrThrow().write(data)
         } catch (e: Exception) {
             throw e
         }

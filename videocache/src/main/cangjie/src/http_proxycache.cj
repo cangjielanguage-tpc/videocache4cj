@@ -47,8 +47,8 @@ public class HttpProxyCache <: ProxyCache {
                 let available = i.available()
                 let length = j.length()
                 if (length > 0) {
-                    let percent = available * 100 / length
-                    this.onCachePercentsAvailableChanged(percent)
+                    let percent = Float64(Float64(available) * 100.0 / Float64(length))
+                    this.onCachePercentsAvailableChanged(Int64(percent))
                 }
             }
         }
@@ -71,7 +71,6 @@ public class HttpProxyCache <: ProxyCache {
             }
             try {
                 let trueBuff = buff.slice(0, readBytes)
-
                 if (this.stopped) {
                     break
                 }
@@ -126,7 +125,6 @@ public class HttpProxyCache <: ProxyCache {
         } else {
             length = sourceTemp.length()
         }
-
         let lengthKnown = length >= 0
         var contentLength: Int64 = 0
         if (request.partial) {
@@ -141,14 +139,12 @@ public class HttpProxyCache <: ProxyCache {
         } else {
             lengthStr = ""
         }
-
         var rangeStr: String = ""
         if (addRange) {
             rangeStr = "Content-Range: bytes ${request.rangeOffset}-${length - 1}/${length}${"\n"}"
         } else {
             rangeStr = ""
         }
-
         var mimeStr: String = ""
         if (mimeKnown) {
             mimeStr = "Content-Type: ${mime}${"\n"}"

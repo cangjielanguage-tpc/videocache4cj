@@ -13,7 +13,7 @@ public class HttpUrlSource <: Source {
     private var isInitFinish: Bool = false
     private var isHeaderDealFinish: Bool = false
     private var isDataFinish: Bool = false
-    private var cacheData: NonBlockingQueue<ByteArrayStream> = NonBlockingQueue<ByteArrayStream>()
+    private var cacheData: NonBlockingQueue<Array<UInt8>> = NonBlockingQueue<Array<UInt8>>()
     private var timer: ?Timer = None
 
     init(args: String) {
@@ -166,7 +166,7 @@ public class HttpUrlSource <: Source {
 
     public override func close(): Unit {
         try {
-            this.cacheData = NonBlockingQueue<ByteArrayStream>()
+            this.cacheData = NonBlockingQueue<Array<UInt8>>()
             if (let Some(i) <- timer) {
                 i.cancel()
             }
@@ -194,7 +194,7 @@ public class HttpUrlSource <: Source {
             if (i.length == Int64.Min) {
                 this.fetchContentInfo()
             }
-            return i.length
+            return this.sourceInfo.getOrThrow().length
         } else {
             return 0
         }
@@ -265,19 +265,14 @@ public class HttpUrlSource <: Source {
                     this.isHeaderDealFinish = true
                 }
             })
-
             connectionTemp.onDataReceive(
                 {
                     data =>
                     if (sourceInfoTemp.url.indexOf("ping").isSome()) {
-                        let byteArrayStram = ByteArrayStream()
-                        byteArrayStram.write(data)
-                        callbackTemp.onDataReceive(byteArrayStram)
+                        callbackTemp.onDataReceive(data)
                         syncCount.dec()
                     } else {
-                        let byteArrayStram = ByteArrayStream()
-                        byteArrayStram.write(data)
-                        this.cacheData.enqueue(byteArrayStram)
+                        this.cacheData.enqueue(data)
                     }
                     return
                 }
@@ -298,7 +293,7 @@ public class HttpUrlSource <: Source {
                 }
             })
             let option: HttpRequestOptions = this.initRequestParam(offset, Option<Duration>.None)
-            this.cacheData = NonBlockingQueue<ByteArrayStream>()
+            this.cacheData = NonBlockingQueue<Array<UInt8>>()
             connectionTemp.requestInStream(
                 sourceInfoTemp.url,
                 {
@@ -337,6 +332,7 @@ public class HttpUrlSource <: Source {
             let urlConnectionTemp = urlConnection.getOrThrow {=> NoneValueException("openConnection fail")}
             let sourceInfoTemp = this.sourceInfo.getOrThrow {=> NoneValueException("sourceInfo is null")}
 
+            AppLog.debug("Read content info from " + this.sourceInfo.getOrThrow().url)
             urlConnectionTemp.onceHeadersReceive(
                 {
                     headers =>
@@ -355,6 +351,7 @@ public class HttpUrlSource <: Source {
                             }
                             this.sourceInfo = SourceInfo(sourceInfoTemp.url, length, mime)
                             this.sourceInfoStorage?.put(sourceInfoTemp.url, sourceInfoTemp)
+                            AppLog.debug("Source info fetched: " + this.sourceInfo.getOrThrow().toString())
                             syncCount.dec()
                         }
                     }
@@ -368,6 +365,7 @@ public class HttpUrlSource <: Source {
             urlConnectionTemp.destroy()
             return
         } catch (e: Exception) {
+            AppLog.error("Error fetching info from " + this.sourceInfo.getOrThrow().url + e.message)
             throw e
         }
     }

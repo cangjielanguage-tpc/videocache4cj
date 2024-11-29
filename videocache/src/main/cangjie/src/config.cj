@@ -20,6 +20,7 @@ public class Config {
     }
 
     func generateCacheFile(url: String): String {
+        //这里生成自定义文件名
         let name = this.fileNameGenerator.generate(url)
         return this.cacheRoot + '/' + name
     }

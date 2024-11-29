@@ -22,7 +22,8 @@ public class HttpProxyCacheServer {
      * 获取服务端代理url
      * 
      * @参数 url - String数据类型，原视频的url
-     * @参数 allowCachedFileUri - Bool数据类型，是否允许缓存文件 true 允许 false 不允许
+     * @参数 allowCachedFileUri - Bool数据类型，这个指的是缓存结束后是不是直接用本地的缓存还是继续通过网络去读取，
+            如果是true，表示从本地缓存读取视频数据，如果fasle表示继续从网络读取数据
      * @返回值 Future<String> 服务端代理url地址
      */
     public func getProxyUrl(url: String, allowCachedFileUri: Bool): Future<String>
@@ -87,7 +88,7 @@ public class HttpProxyCacheServerBuilder {
 
 
     /**
-     * 设置最大缓存大小
+     * 设置缓存目录下允许的最大大小，即所有缓存文件之和最大为多少
      * 
      * @参数 maxSize - Int64最大缓存大小 单位字节
      * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象

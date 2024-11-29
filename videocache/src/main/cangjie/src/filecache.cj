@@ -98,16 +98,16 @@ public class FileCache <: Cache {
         }
     }
 
-    public override func append(fileData: ByteArrayStream, length: Int64) {
+    public override func append(fileData: Array<UInt8>, length: Int64) {
         try {
             if (this.isCompleted()) {
                 throw ProxyCacheException("Error append cache: cache file " + this.tempFilePath + " is completed!")
             }
 
-            this.dataFile.write(fileData.bytes())
+            this.dataFile.write(fileData)
             FileFs.fsync(this.dataFile.fd)
         } catch (e: Exception) {
-            let format = "Error writing ${length} bytes to ${this.tempFilePath}from buffer with size ${fileData.length},reason is : ${e.message}"
+            let format = "Error writing ${length} bytes to ${this.tempFilePath}from buffer with size ${fileData.size},reason is : ${e.message}"
             throw ProxyCacheException(format)
         }
     }

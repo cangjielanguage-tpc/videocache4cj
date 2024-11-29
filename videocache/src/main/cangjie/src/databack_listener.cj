@@ -4,7 +4,7 @@
 package videocache
 
 public interface DataBackListener {
-    func onDataReceive(data: ByteArrayStream): Unit
+    func onDataReceive(data: Array<UInt8>): Unit
 
     func onDataProgress(progress: DataReceiveProgressInfo): Unit
 
