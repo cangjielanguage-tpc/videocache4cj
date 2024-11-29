@@ -106,7 +106,7 @@ public class HttpProxyCacheServerBuilder {
 
 
     /**
-     * 设置自定义缓存清理策略
+     * 设置自定义缓存清理策略,只有缓存在程序默认位置时候才会触发清理策略
      * 
      * @参数 diskUsage - DiskUsage 自定义缓存策略
      * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象

@@ -352,9 +352,9 @@ public class HttpUrlSource <: Source {
                             this.sourceInfo = SourceInfo(sourceInfoTemp.url, length, mime)
                             this.sourceInfoStorage?.put(sourceInfoTemp.url, sourceInfoTemp)
                             AppLog.debug("Source info fetched: " + this.sourceInfo.getOrThrow().toString())
-                            syncCount.dec()
                         }
                     }
+                    syncCount.dec()
                     return
                 }
             )
