@@ -9,16 +9,17 @@
     ],
     "deliveryWithInstall": true,
     "installationFree": false,
+    "pages": "$profile:main_pages",
     "requestPermissions": [
       {
         "name": "ohos.permission.INTERNET",
-      },
+        "reason": "$string:EntryAbility_desc"
+      }
     ],
-    "srcEntry": "ohos_app_cangjie_entry.MyAbilityStage",
     "abilities": [
       {
         "name": "EntryAbility",
-        "srcEntry": "ohos_app_cangjie_entry.MainAbility",
+        "srcEntry": "./ets/entryability/EntryAbility.ets",
         "description": "$string:EntryAbility_desc",
         "icon": "$media:layered_image",
         "label": "$string:EntryAbility_label",
@@ -35,6 +36,20 @@
             ]
           }
         ]
+      }
+    ],
+    "extensionAbilities": [
+      {
+        "name": "EntryBackupAbility",
+        "srcEntry": "./ets/entrybackupability/EntryBackupAbility.ets",
+        "type": "backup",
+        "exported": false,
+        "metadata": [
+          {
+            "name": "ohos.extension.backup",
+            "resource": "$profile:backup_config"
+          }
+        ],
       }
     ]
   }

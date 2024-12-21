@@ -1,7 +1,19 @@
 {
   "app": {
     "signingConfigs": [
-
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\admin\\.ohos\\config\\default_ijk241129testuseori_Ab5hzzFxeA_8NZCoc6TJ3sOcqDP8amjHxvodtEGcmDA=.cer",
+          "storePassword": "0000001A547FBAB8518FC12866D0AD9BCAB5B767581DD545EE3F584B57533C2403734B9CBE783BA93106",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A222121F3E637ED0160BA4765CFEBE741145A5EFEFFAA378F619B7419EF622BA68AED7EE9563D",
+          "profile": "C:\\Users\\admin\\.ohos\\config\\default_ijk241129testuseori_Ab5hzzFxeA_8NZCoc6TJ3sOcqDP8amjHxvodtEGcmDA=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\admin\\.ohos\\config\\default_ijk241129testuseori_Ab5hzzFxeA_8NZCoc6TJ3sOcqDP8amjHxvodtEGcmDA=.p12"
+        }
+      }
     ],
     "products": [
       {
@@ -40,8 +52,16 @@
       ]
     },
     {
+      "name": "ijkplayer",
+      "srcPath": "./thirdparty/ijkplayer-ffi/ijkplayer"
+    },
+    {
+      "name": "clibrary",
+      "srcPath": "./thirdparty/ijkplayer-ffi/clibrary"
+    },
+    {
       "name": "videocache",
-      "srcPath": "./videocache"
+      "srcPath": "./thirdparty/videocache4cj/videocache"
     }
   ]
 }

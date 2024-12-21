@@ -2,15 +2,35 @@
   "apiType": "stageMode",
   "buildOption": {
     "cangjieOptions": {
-      "path": "./src/main/cangjie/cjpm.toml",
-      "abiFilters": ["x86_64","arm64-v8a"]
+      "path": "./src/main/cangjie/cjpm.toml"
+    },
+    "nativeLib": {
+      "filter": {
+        "enableOverride": true
+      }
     }
   },
   "buildOptionSet": [
+    {
+      "name": "release",
+      "arkOptions": {
+        "obfuscation": {
+          "ruleOptions": {
+            "enable": false,
+            "files": [
+              "./obfuscation-rules.txt"
+            ]
+          }
+        }
+      }
+    },
   ],
   "targets": [
     {
       "name": "default"
+    },
+    {
+      "name": "ohosTest",
     }
   ]
 }

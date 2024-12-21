@@ -6,7 +6,8 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "videocache": "file:../videocache"
+    "ijkplayer": "file:../thirdparty/ijkplayer-ffi/ijkplayer",
+    "videocache": "file:../thirdparty/videocache4cj/videocache",
+    "libark_interop_loader.so": "file:./src/main/cangjie/loader"
   }
 }
-

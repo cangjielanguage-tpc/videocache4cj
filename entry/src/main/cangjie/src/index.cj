@@ -1,108 +1,708 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 
 package ohos_app_cangjie_entry
-import ohos.router.*
+
 import ohos.state_macro_manage.*
+import ijkplayer4cj.XComponent
+import std.time.Duration
 
 @Entry
 @Component
-class MyView {
-      let scroller = Scroller()
-        func build() {
-            Row {
-                Scroll(this.scroller) {
-                    Column {
-                        Button("L0网络视频1").onClick {Router.push(url: "L0_Network")}
-                        Button("L0网络视频").onClick {Router.push(url: "L0_Network1")}
-                        Button("L1局域网视频").onClick {Router.push(url: "L1_Localareanetwork")}
-                        Button("L1本地视频 ").onClick {Router.push(url: "L1_Locality")}
-                        Button("L1网络视频1").onClick {Router.push(url: "L1_Network")}
-                        Button("L1网络视频2").onClick {Router.push(url: "L1_Network2")}
-                        Button("L1网络视频3").onClick {Router.push(url: "L1_Network3")}
+class EntryView {
+    var videoUrl: String = "https://cdn-vod-playlet.wtzw.com/asset/c0127835e4ed22e0f763b2261311b998/fc74f32bb6b5b764c6d790ea30399f60.mov"
 
-                        Button("L1设置缓存目录").onClick {Router.push(url: "L1_Network_Directory")}
-                        Button("L1设置缓存目录1").onClick {Router.push(url: "L1_Network_Directory1")}
-                        Button("L1设置缓存目录2").onClick {Router.push(url: "L1_Network_Directory2")}
+    var mIjkMediaPlayer: IjkMediaPlayer = IjkMediaPlayer.getInstance()
 
-                        Button("L1设置缓存数量").onClick {Router.push(url: "L1_Network_MaxCacheFilesCount")}
-                        Button("L1设置缓存数量1").onClick {Router.push(url: "L1_Network_MaxCacheFilesCount1")}
-                        Button("L1设置缓存数量2").onClick {Router.push(url: "L1_Network_MaxCacheFilesCount2")}
+    var volume: Float32 = 0.5
 
-                        Button("L1设置缓存大小").onClick {Router.push(url: "L1_Network_MaxCacheSize")}
-                        Button("L1设置缓存大小1").onClick {Router.push(url: "L1_Network_MaxCacheSize1")}
-                        Button("L1设置缓存大小2").onClick {Router.push(url: "L1_Network_MaxCacheSize2")}
+    var playSpeed: String = "1f"
 
-                        Button("L1设置监听").onClick {Router.push(url: "L1_Network_RegisterCacheListener")}
-                        Button("L1设置监听1").onClick {Router.push(url: "L1_Network_RegisterCacheListener1")}
+    var isLoading: Bool = false
 
-                        Button("L1设置清理策略").onClick {Router.push(url: "L1_Network_SetDiskUsage")}
-                        Button("L1设置清理策略1").onClick {Router.push(url: "L1_Network_SetDiskUsage1")}
+    @State
+    var mFirst: Bool = true
+    @State
+    var mDestroyPage: Bool = false
 
-                        Button("L1设置缓存名称").onClick {Router.push(url: "L1_Network_SetFileNameGenerator")}
-                        Button("L1设置缓存名称1").onClick {Router.push(url: "L1_Network_SetFileNameGenerator1")}
-                        Button("L1设置缓存名称2").onClick {Router.push(url: "L1_Network_SetFileNameGenerator2")}
-                        Button("L1设置缓存名称3").onClick {Router.push(url: "L1_Network_SetFileNameGenerator3")}
+    var playStatus: PlayStatus = PlayStatus.INIT
 
-                        Button("L1设置请求头").onClick {Router.push(url: "L1_Network_SetHeaderInjector")}
-                        Button("L1设置请求头1").onClick {Router.push(url: "L1_Network_SetHeaderInjector1")}
-                        Button("L1设置请求头2").onClick {Router.push(url: "L1_Network_SetHeaderInjector2")}
-                        Button("L1设置请求头3").onClick {Router.push(url: "L1_Network_SetHeaderInjector3")}
-                        Button("L1设置请求头4").onClick {Router.push(url: "L1_Network_SetHeaderInjector4")}
+    @State
+    var isCurrentTime: Bool = false
 
-                        Button("L1设置取消监听").onClick {Router.push(url: "L1_Network_unregisterCacheListener")}
-                        Button("L1设置取消监听1").onClick {Router.push(url: "L1_Network_unregisterCacheListener1")}
+    @State
+    var oldSeconds: Int64 = 0
 
-                        Button("网络视频设置").onClick {Router.push(url: "L1_Network_VideoCache")}
-                        Button("网络视频设置1").onClick {Router.push(url: "L1_Network_VideoCache1")}
-                        Button("网络视频设置2").onClick {Router.push(url: "L1_Network_VideoCache2")}
-                        Button("网络视频设置3").onClick {Router.push(url: "L1_Network_VideoCache3")}
-                        Button("网络视频设置4").onClick {Router.push(url: "L1_Network_VideoCache4")}
-                        Button("网络视频设置5").onClick {Router.push(url: "L1_Network_VideoCache5")}
-                        Button("网络视频设置6").onClick {Router.push(url: "L1_Network_VideoCache6")}
-                        Button("网络视频设置7").onClick {Router.push(url: "L1_Network_VideoCache7")}
-                        Button("网络视频设置8").onClick {Router.push(url: "L1_Network_VideoCache8")}
+    @State
+    var isSeekTo: Bool = false
 
-                        Button("局域网视频设置").onClick {Router.push(url: "L1_Network_VideoCache_File")}
-                        Button("局域网视频设置1").onClick {Router.push(url: "L1_Network_VideoCache_File1")}
-                        Button("局域网视频设置2").onClick {Router.push(url: "L1_Network_VideoCache_File2")}
-                        Button("局域网视频设置3").onClick {Router.push(url: "L1_Network_VideoCache_File3")}
-                        Button("局域网视频设置4").onClick {Router.push(url: "L1_Network_VideoCache_File4")}
-                        Button("局域网视频设置5").onClick {Router.push(url: "L1_Network_VideoCache_File5")}
-                        Button("局域网视频设置6").onClick {Router.push(url: "L1_Network_VideoCache_File6")}
-                        Button("局域网视频设置7").onClick {Router.push(url: "L1_Network_VideoCache_File7")}
-                        Button("局域网视频设置8").onClick {Router.push(url: "L1_Network_VideoCache_File8")}
+    @State
+    var slideEnable: Bool = false
 
-                         Button("视频设置").onClick {Router.push(url: "L1_VideoCache")}
-                        Button("视频设置1").onClick {Router.push(url: "L1_VideoCache1")}
-                        Button("视频设置2").onClick {Router.push(url: "L1_VideoCache2")}
-                        Button("视频设置3").onClick {Router.push(url: "L1_VideoCache3")}
-                        Button("视频设置4").onClick {Router.push(url: "L1_VideoCache4")}
-                        Button("视频设置5").onClick {Router.push(url: "L1_VideoCache5")}
-                        Button("视频设置6").onClick {Router.push(url: "L1_VideoCache6")}
-                        Button("视频设置7").onClick {Router.push(url: "L1_VideoCache7")}
-                        Button("视频设置8").onClick {Router.push(url: "L1_VideoCache8")}
+    @State
+    var PROGRESS_MAX_VALUE: Int64 = 100
 
-                        Button("L2设置缓存目录").onClick {Router.push(url: "L2_Network_Directory")}
-                        Button("L2设置缓存目录1").onClick {Router.push(url: "L2_Network_Directory1")}
-                        Button("L2设置缓存目录2").onClick {Router.push(url: "L2_Network_Directory2")}
+    @State
+    var totalTime: String = "00:00"
 
-                        Button("L2设置缓存数量").onClick {Router.push(url: "L2_Network_MaxCacheFilesCount")}
-                        Button("L2设置缓存数量1").onClick {Router.push(url: "L2_Network_MaxCacheFilesCount1")}
+    @State
+    var currentTime: String = "00:00"
 
-                        Button("L2设置缓存大小").onClick {Router.push(url: "L2_Network_MaxCacheSize")}
-                        Button("L2设置缓存大小1").onClick {Router.push(url: "L2_Network_MaxCacheSize1")}
+    @State
+    var updateProgressTimer: Int64 = 0
 
-                        Button("L2设置命名规则").onClick {Router.push(url: "L2_Network_SetFileNameGenerator")}
-                        Button("L2设置命名规则1").onClick {Router.push(url: "L2_Network_SetFileNameGenerator1")}
+    @State
+    var loadingVisible: Visibility = Visibility.None
 
-                        Button("L2异常地址").onClick {Router.push(url: "L2_Videocache")}
-                        Button("L2异常地址1").onClick {Router.push(url: "L2_Videocache1")}
-                        Button("L2异常地址2").onClick {Router.push(url: "L2_Videocache2")}
-                        Button("L2异常地址3").onClick {Router.push(url: "L2_Videocache3")}
-                    }.width(100.percent)
+    @State
+    var replayVisible: Visibility = Visibility.None
+
+    @State
+    var curIndex: Int64 = -1
+
+    @State
+    var progressValue: Int64 = 0
+
+    @State
+    var initAspectRatio: Float64 = 1.0
+
+    @State
+    var videoAspectRatio: Float64 = 1.0
+
+    @State
+    var videoParentAspectRatio: Int32 = 1;
+
+    @State
+    var videoWidth: Length = Length(100, unitType: percent)
+
+    private var videoUrls: Array<String> = [
+
+        "https://bbs-video.huaweicloud.com/video/media/20180124/20180124173521_56304.mp4", //要
+        "https://1251542705.vod2.myqcloud.com/4a8d9c67vodtransgzp1251542705/203109c63270835013529449619/v.f1419907.mp4",
+        "https://getsamplefiles.com/download/mp4/sample-5.mp4",
+        //'https://www.w3schools.com/html/movie.mp4',
+        "http://1251017968.vod2.myqcloud.com/3eb04eefvodtransgzp1251017968/8782b1285285890810009576163/v.f30.mp4",
+        'https://vodpub1.v.news.cn/original/20230915/e6520e0158e44a7383bd137bd42f4451.mp4',//要
+        //"https://cdn-vod-playlet.wtzw.com/asset/c0127835e4ed22e0f763b2261311b998/fc74f32bb6b5b764c6d790ea30399f60.mov",//要
+        "https://cdn-vod-playlet.wtzw.com/asset/c0127835e4ed22e0f763b2261311b998/play_video/9087e7364cae6dfb3e2e9cd9190c3544.m3u8",//要
+        "https://cdn-vod-playlet.wtzw.com/asset/722fc06d21b38137346b3becb69dc77a/a73bcdb561937a9814e5feffbfb94d2f.mp4",//要
+        "https://cdn-vod-playlet.wtzw.com/asset/722fc06d21b38137346b3becb69dc77a/play_video/915013be94a102ebce7b108c934bcec4.m3u8"
+    ]
+
+    func build() {
+        Flex(FlexParams(direction: FlexDirection.Column, alignItems: ItemAlign.Auto, justifyContent: FlexAlign.Start)) {
+            Flex(
+                FlexParams(direction: FlexDirection.Column, alignItems: ItemAlign.Center,
+                justifyContent: FlexAlign.Center)) {
+                Text("ijkplayer").fontSize(16).fontColor(Color.WHITE).fontWeight(FontWeight.Bold)
+            }.height(60).width(100.percent).backgroundColor(Color.BLACK)
+
+            Divider().vertical(false).strokeWidth(8).color(Color.WHITE).lineCap(LineCapStyle.Round)
+            Stack(Alignment.Center) {
+                Column {
+                    XComponent("xcomponentId", "surface", "ijkplayer_napi").onLoad {
+                        => initDelayPlay()
+                    }.width(100.percent).width(this.videoWidth).aspectRatio(this.videoAspectRatio).id("xcomponentId")
                 }
-            }.height(100.percent)
+                Image(@r(app.media.icon_replay)).objectFit(ImageFit.Auto).width(60).height(60).visibility(
+                    this.replayVisible).borderStyle(BorderStyle.Dashed).onClick(
+                    {
+                    event => this.startPlayOrResumePlay();
+                })
+                Image(@r(app.media.icon_load)).objectFit(ImageFit.Auto).width(60).height(60).visibility(
+                    this.loadingVisible).borderStyle(BorderStyle.Dashed)
+            }.width(100.percent).backgroundColor(0x000000).clip(true)
+
+            Flex(FlexParams(direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start)
+            ) {
+                Text(this.currentTime).width(80).fontSize(16).margin(10)
+                Slider(
+                    value: Float64(this.progressValue),
+                    min: 0.0,
+                    max: Float64(this.PROGRESS_MAX_VALUE),
+                    step: 1.0,
+                    style: SliderStyle.OutSet
+                ).width(500).blockColor(Color.BLUE).trackColor(Color.GRAY).selectedColor(Color.BLUE).showSteps(true).
+                    showTips(true).enabled(this.slideEnable).onChange(
+                    {
+                    value, mode => match (mode) {
+                        case SliderChangeMode.End =>
+                            this.isSeekTo = true
+                            this.mDestroyPage = false
+                            showLoadIng()
+                            let seekValue = value * Float64((this.mIjkMediaPlayer.getDuration() / 100))
+                            this.seekTo(seekValue.toString());
+                            this.setProgress()
+                            this.isSeekTo = false
+                        case _ => ()
+                    }
+                })
+                Text(this.totalTime).width(80).fontSize(16).margin(10)
+            }
+
+
+            Flex(FlexParams(direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start)
+            ) {
+                Button("播放").onClick({
+                    => this.startPlayOrResumePlay()
+                }).width(300).height(40).margin(10)
+                Button("暂停").onClick({
+                    => this.pause()
+                }).width(300).height(40).margin(10)
+                Button("停止").onClick({
+                    => this.stop()
+                }).width(300).height(40).margin(10)
+            }
+
+            Flex(FlexParams(direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start)
+            ) {
+                Button("1x").onClick(
+                    {
+                        =>
+                        this.playSpeed = "1f"
+                        this.mIjkMediaPlayer.setSpeed("1f");
+                    }
+                ).width(300).height(40).margin(10)
+                Button("1.5x").onClick(
+                    {
+                        =>
+                        this.playSpeed = "1.5f"
+                        this.mIjkMediaPlayer.setSpeed("1.5f");
+                    }
+                ).width(300).height(40).margin(10)
+                Button("2x").onClick(
+                    {
+                        =>
+                        this.playSpeed = "2f"
+                        this.mIjkMediaPlayer.setSpeed("2f");
+                    }
+                ).width(300).height(40).margin(10)
+            }
+
+            Flex(FlexParams(direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start)
+            ) {
+                Button("下一个视频").onClick({
+                    => this.playNext()
+                }).width(300).height(40).margin(10)
+                Button("").onClick({
+                    =>
+                }).width(300).height(40).margin(10).visibility(Visibility.Hidden)
+                Button("").onClick({
+                    =>
+                }).width(300).height(40).margin(10).visibility(Visibility.Hidden)
+            }
+
+
+            Flex(FlexParams(direction: FlexDirection.Row, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Start)
+            ) {
+                Text("音量").width(100).fontSize(16).margin(10)
+                Slider(
+                    value: Float64(this.volume),
+                    min: 0.0,
+                    max: 1.0,
+                    step: 0.1,
+                    style: SliderStyle.OutSet
+                ).width(500).blockColor(Color.BLUE).trackColor(Color.GRAY).selectedColor(Color.BLUE).showSteps(true).
+                    showTips(true).onChange(
+                    {
+                    value, mode => match (mode) {
+                        case SliderChangeMode.End =>
+                            this.volume = Float32(value)
+                            this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString())
+                        case _ => ()
+                    }
+                })
+            }
+        }
+    }
+
+    public override func aboutToAppear(): Unit {
+        AppLog.info("进来了aboutToAppear")
+        var server: HttpProxyCacheServer = HttpProxyCacheServerBuilder(GlobalContext.getContext().getOrThrow()).build()
+        GlobalProxyServer.getInstance().setServer(server)
+    }
+
+    private func initDelayPlay(): Unit {
+        Timer.once(
+            Duration.millisecond * 300,
+            {
+                =>
+                //startPlayOrResumePlay()
+                this.mFirst = false
+            }
+        )
+    }
+
+    private func startPlayOrResumePlay(): Unit {
+        this.mDestroyPage = false
+        AppLog.info("startPlayOrResumePlay start this.playStatus:" + this.playStatus.toString())
+        if (this.playStatus == PlayStatus.INIT) {
+            this.stopProgressTask()
+            this.startProgressTask()
+            this.play(this.videoUrl.toString())
+        }
+        if (this.playStatus == PlayStatus.PAUSE) {
+            this.mIjkMediaPlayer.start()
+            this.setProgress()
+        }
+    }
+
+    private func stringForTime(timeMs: Int64): String {
+        var totalSeconds: Int64 = timeMs / 1000
+        var newSeconds: Int64 = totalSeconds % 60 //秒的余数
+        var minutes: Int64 = (totalSeconds / 60) % 60 //分的余数
+        var hours: Int64 = totalSeconds / 3600; //小时的余数
+        AppLog.info("stringForTime hours : ${hours} , minutes : ${minutes} ,seconds : ${newSeconds}")
+        hours = Int64(floor(floor(Float64(hours * 100)) / 100.0))
+        minutes = Int64(floor(floor(Float64(minutes * 100)) / 100.0))
+        newSeconds = Int64(floor(floor(Float64(newSeconds * 100)) / 100.0))
+        if (this.isCurrentTime) {
+            if (this.oldSeconds < newSeconds || newSeconds == 0 || this.isSeekTo) {
+                this.oldSeconds = newSeconds
+            } else {
+                newSeconds = this.oldSeconds
+            }
+        }
+        var hoursStr: String = ""
+        var minutesStr: String = ""
+        var secondStr: String = ""
+        if (hours < 10) {
+            hoursStr = "0" + hours.toString()
+        } else {
+            hoursStr = hours.toString()
+        }
+        if (minutes < 10) {
+            minutesStr = "0" + minutes.toString()
+        } else {
+            minutesStr = minutes.toString()
+        }
+        if (newSeconds < 10) {
+            secondStr = "0" + newSeconds.toString()
+        } else {
+            secondStr = newSeconds.toString()
+        }
+
+        if (hours > 0) {
+            return hoursStr.toString() + ":" + minutesStr.toString() + ":" + secondStr.toString()
+        } else {
+            return minutesStr.toString() + ":" + secondStr.toString()
+        }
+    }
+
+    private func setProgress(): Unit {
+        var position = Int64(this.mIjkMediaPlayer.getCurrentPosition())
+        var duration = Int64(this.mIjkMediaPlayer.getDuration())
+        var pos = 0
+        if (duration > 0) {
+            this.slideEnable = true
+            var curPercent = (Float64(position)) / Float64(duration)
+            pos = Int64(curPercent * 100.0)
+            if (pos > this.PROGRESS_MAX_VALUE) {
+                this.progressValue = this.PROGRESS_MAX_VALUE
+            } else {
+                this.progressValue = pos
+            }
+        }
+        AppLog.info(
+            "setProgress position:" + position.toString() + ",duration:" + duration.toString() + ",progressValue:" +
+            pos.toString())
+        this.totalTime = this.stringForTime(duration)
+        if (position > duration) {
+            position = duration
+        }
+        this.isCurrentTime = true
+        this.currentTime = this.stringForTime(position)
+        this.isCurrentTime = false
+    }
+
+    private var timer: ?Timer = None
+
+    private func startProgressTask(): Unit {
+        timer = Timer.repeat(
+            Duration.millisecond * 0,
+            Duration.millisecond * 300,
+            {
+                =>
+                AppLog.info("startProgressTask")
+                if (!this.mDestroyPage) {
+                    setProgress()
+                }
+            }
+        )
+    }
+
+    private func stopProgressTask(): Unit {
+        AppLog.info("stopProgressTask")
+        if (let Some(i) <- timer) {
+            i.cancel()
+        }
+    }
+
+    private func showLoadIng(): Unit {
+         isLoading = true
+        this.loadingVisible = Visibility.Visible
+        this.replayVisible = Visibility.None
+    }
+
+    private func hideLoadIng(): Unit {
+        isLoading = false
+        this.loadingVisible = Visibility.None
+        this.replayVisible = Visibility.None
+    }
+
+    private func showRePlay(): Unit {
+        this.loadingVisible = Visibility.None
+        this.replayVisible = Visibility.Visible
+    }
+
+    private func play(url: String): Unit {
+        showLoadIng()
+        var proxyUrl = ""
+        AppLog.error("------------------ijk next1")
+        let tempUrl = GlobalProxyServer.getInstance().getServer().getProxyUrl(url, true)
+        AppLog.error("hhsfrank 29 ")
+        if (tempUrl.get().size > 0) {
+            AppLog.error("------------------ijk next3")
+            AppLog.error("hhsfrank 30")
+            proxyUrl = tempUrl.get()
+            AppLog.error("------------------ijk next4")
+        } else {
+            AppLog.error("------------------ijk next5")
+            proxyUrl = url
+        }
+        AppLog.error("------------------ijk next6 ${proxyUrl}")
+        //设置XComponent回调的context
+        AppLog.error("hhsfrank 31")
+        this.mIjkMediaPlayer = IjkMediaPlayer.getInstance()
+        this.mIjkMediaPlayer.setContext("xcomponentId")
+        AppLog.error("------------------ijk next7")
+        AppLog.error("hhsfrank 32")
+
+        if (this.playStatus == PlayStatus.INIT) {
+            this.mIjkMediaPlayer.reset()
+        }
+        this.playStatus = PlayStatus.PLAY
+        //设置debug模式
+        this.mIjkMediaPlayer.setDebug(true)
+        //初始化配置
+        this.mIjkMediaPlayer.native_setup();
+        // 初始化配置后需要重新设置音频流音量，否则音量为默认值1.0
+        this.mIjkMediaPlayer.setVolume(this.volume.toString(), this.volume.toString());
+        //设置视频源
+        AppLog.error("------------proxyUrl=${proxyUrl}")
+        this.mIjkMediaPlayer.setDataSource(proxyUrl);
+        //设置视频源http请求头
+        let headers = HashMap<String, String>()
+        headers.put("user_agent", "Mozilla/5.0 BiliDroid/7.30.0 (bbcallen@gmail.com)")
+        headers.put("referer", "https://www.bilibili.com")
+        AppLog.error("------------------ijk next8")
+
+        this.mIjkMediaPlayer.setDataSourceHeader(headers);
+        AppLog.error("------------------ijk next8.1")
+
+        //使用精确寻帧 例如，拖动播放后，会寻找最近的关键帧进行播放，很有可能关键帧的位置不是拖动后的位置，而是较前的位置.可以设置这个参数来解决问题
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", "1");
+        //预读数据的缓冲区大小
+        AppLog.error("------------------ijk next8.2")
+
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max-buffer-size", "102400");
+        AppLog.error("------------------ijk next8.3")
+
+        //停止预读的最小帧数
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "min-frames", "100");
+        //启动预加载
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", "1");
+        // 设置无缓冲，这是播放器的缓冲区，有数据就播放
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "packet-buffering", "0");
+        //跳帧处理,放CPU处理较慢时，进行跳帧处理，保证播放流程，画面和声音同步
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "framedrop", "5");
+        // 最大缓冲cache是3s， 有时候网络波动，会突然在短时间内收到好几秒的数据
+        // 因此需要播放器丢包，才不会累积延时
+        // 这个和第三个参数packet-buffering无关。
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "max_cached_duration", "3000");
+        // 无限制收流
+        //AppLog.error("------------------ijk next8.4")
+
+        // this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1");
+        // this.mIjkMediaPlayer.setOptionLong(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "infbuf", "1")
+        // 屏幕常亮
+        AppLog.error("------------------ijk next8.5")
+        this.mIjkMediaPlayer.setScreenOnWhilePlaying(true, GlobalContext.getContext().getOrThrow());
+        // 设置超时
+        AppLog.error("------------------ijk next8.51")
+
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "timeout", "10000000");
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "connect_timeout", "10000000");
+        AppLog.error("------------------ijk next8.52")
+
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "addrinfo_timeout", "10000000");
+        AppLog.error("------------------ijk next8.53")
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "dns_cache_timeout", "10000000");
+        // 变速播放
+        this.mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "soundtouch", "1");
+        AppLog.error("------------------ijk next8.54")
+        //this.mIjkMediaPlayer.setSpeed(this.playSpeed);
+        AppLog.error("------------------ijk next8.6")
+         AppLog.error("hhsfrank 33")
+        let Speed = this.mIjkMediaPlayer.getSpeed()
+        AppLog.info("getSpeed--" + Speed.toString())
+        //是否开启循环播放
+        AppLog.error("------------------ijk next8.7")
+        this.mIjkMediaPlayer.setLoopCount(false)
+        AppLog.error("------------------ijk next9")
+
+        this.mIjkMediaPlayer.setOnVideoSizeChangedListener(
+            {
+                width: Int32, height: Int32, sar_num: Int32, sar_den: Int32 =>
+                //AppLog.error("------------------ijk setOnVideoSizeChangedListener in")
+                if (height == 0) {
+                    return
+                }
+                let va = Float64(width) / Float64(height)
+                let vpa = Float64(this.videoParentAspectRatio)
+                if (vpa > va) {
+                    this.videoWidth = Length((Float64(width) / (Float64(height) * vpa)) * 100.0, unitType: percent)
+                } else {
+                    this.videoWidth = Length(100, unitType: percent)
+                }
+                if (width > 0 && height > 0) {
+                    this.videoAspectRatio = Float64(width) / Float64(height)
+                }
+                LogUtils.getInstance().LOGI(
+                    "setOnVideoSizeChangedListener-->go:" + width.toString() + "," + height.toString() + "," +
+                    sar_num.toString() + "," + sar_den.toString())
+                this.getVideoSize()
+                AppLog.error("------------------ijk setOnVideoSizeChangedListener out")
+                this.hideLoadIng()
+            }
+        )
+
+        this.mIjkMediaPlayer.setOnPreparedListener({
+            => AppLog.error("------------------进来了setOnPreparedListener")
+        })
+
+        this.mIjkMediaPlayer.setOnTimedTextListener(
+            {
+            str => AppLog.error("------------------进来了setOnTimedTextListener" + str)
+        })
+
+        this.mIjkMediaPlayer.setOnCompletionListener(
+            {
+                =>
+                AppLog.error("------------------进来了 结束")
+                showRePlay()
+            }
+        )
+
+        this.mIjkMediaPlayer.setOnSeekCompleteListener(
+            {
+                =>
+                AppLog.error("------------------进来了 seek")
+                this.startPlayOrResumePlay();
+            }
+        )
+
+        this.mIjkMediaPlayer.setOnErrorListener(
+            {
+                what, extra =>
+                AppLog.error("------------------进来了 setOnErrorListener}")
+                hideLoadIng()
+            }
+        )
+
+        this.mIjkMediaPlayer.setOnInfoListener(
+            {
+                what, extra =>
+                ////AppLog.error("------------------进来了 info ${what} ${extra}")
+                AppLog.error("------------------ijk setOnInfoListener")
+                hideLoadIng()
+
+            }
+        )
+
+        this.mIjkMediaPlayer.setOnBufferingUpdateListener(
+            {
+            percent => //AppLog.error("------------------进来了 BufferingUpdate ${percent}")
+        })
+
+        AppLog.error("------------------ijk next10")
+        this.mIjkMediaPlayer.setMessageListener()
+
+        this.mIjkMediaPlayer.prepareAsync()
+        AppLog.error("------------------ijk next11")
+
+        this.mIjkMediaPlayer.start()
+        AppLog.error("------------------ijk next12")
+    }
+
+    private func getVideoSize(): Unit {
+        let VideoWidth = this.mIjkMediaPlayer.getVideoWidth()
+        AppLog.info("getVideoWidth---" + VideoWidth.toString())
+        let VideoHeight = this.mIjkMediaPlayer.getVideoHeight()
+        AppLog.info("getVideoHeight---" + VideoHeight.toString())
+    }
+
+    private func pause(): Unit {
+        if (this.mIjkMediaPlayer.isPlaying()) {
+            this.mIjkMediaPlayer.pause()
+            this.setProgress()
+            this.mDestroyPage = true
+            this.playStatus = PlayStatus.PAUSE
+        }
+    }
+
+    private func stop(): Unit {
+        this.playStatus = PlayStatus.INIT
+        this.mIjkMediaPlayer.stop()
+        this.mIjkMediaPlayer.release()
+        this.stopProgressTask()
+    }
+
+    private func seekTo(value: String): Unit {
+        this.mIjkMediaPlayer.seekTo(value)
+    }
+
+    var time1:Int64 = 0
+    var time2:Int64 = 0
+
+    private func testplay(): Unit {
+        //"https://bbs-video.huaweicloud.com/video/media/20180124/20180124173521_56304.mp4", //要
+        //"https://cdn-vod-playlet.wtzw.com/asset/c0127835e4ed22e0f763b2261311b998/fc74f32bb6b5b764c6d790ea30399f60.mov",//要
+        //'https://vodpub1.v.news.cn/original/20230915/e6520e0158e44a7383bd137bd42f4451.mp4',//要
+        //"https://cdn-vod-playlet.wtzw.com/asset/c0127835e4ed22e0f763b2261311b998/play_video/9087e7364cae6dfb3e2e9cd9190c3544.m3u8",//要
+        //"https://cdn-vod-playlet.wtzw.com/asset/722fc06d21b38137346b3becb69dc77a/a73bcdb561937a9814e5feffbfb94d2f.mp4",//要
+        var proxyUrl:String = ""
+        var url = "https://bbs-video.huaweicloud.com/video/media/20180124/20180124173521_56304.mp4"
+        let tempUrl = GlobalProxyServer.getInstance().getServer().getProxyUrl(url, true)
+        if (tempUrl.get().size > 0) {
+            //AppLog.error("------------------ijk next3")
+            proxyUrl = tempUrl.get()
+
+            //AppLog.error("------------------ijk next4")
+        } else {
+            //AppLog.error("------------------ijk next5")
+            proxyUrl = ""
+        }
+        this.mIjkMediaPlayer = IjkMediaPlayer.getInstance()
+        this.mIjkMediaPlayer.setContext("xcomponentId")
+        this.mIjkMediaPlayer.native_setup()
+        this.mIjkMediaPlayer.setDataSource(proxyUrl)
+        this.mIjkMediaPlayer.setMessageListener()
+        this.mIjkMediaPlayer.prepareAsync()
+        this.mIjkMediaPlayer.start()
+
+    }
+
+
+
+    private func playNext(): Unit {
+        if(isLoading){
+            return
+        }
+        if (this.curIndex == this.videoUrls.size - 1) {
+            this.curIndex = 0
+        } else {
+            this.curIndex++
+        }
+        this.playStatus = PlayStatus.INIT
+        this.stop()
+        //AppLog.error("------------------ijk next11")
+        this.videoUrl = this.videoUrls[this.curIndex]
+        //AppLog.error("------------------ijk next12")
+        this.startPlayOrResumePlay()
+    }
+}
+
+public func loadCJPage(): Unit {
+    Hilog.info(0, "cangjiePage", "loadCJPage start")
+    let elemId = ViewStackProcessor.AllocateNewElmetIdForNextComponent()
+    ViewStackProcessor.StartGetAccessRecordingFor(elemId)
+    CustomView.create(EntryView(Option<CustomView>.None))
+    ViewStackProcessor.StopGetAccessRecording()
+    return ()
+}
+
+public class PageTest <: SharedObject {
+    static init() {
+        JSModule.registerFunc("test_getloadCJPage", {context => context.function(test_getloadCJPage)})
+        JSModule.registerFunc("test_getArkTSCallback", {context => context.function(test_getArkTSCallback)})
+        JSModule.registerFunc("setContext", {context => context.function(setContext)})
+    }
+
+    public static func setContext(context: JSContext, callInfo: JSCallInfo): JSValue {
+        let jsEnv = context.getNapiEnv()
+        let jsValue = arkTsValuetoNapiValue(jsEnv, callInfo[0])
+        if (isStageMode(jsEnv, jsValue)) {
+            GlobalContext.setContext(getContextStageMode(jsEnv, jsValue))
+        } else {
+            //AppLog.error("------------------setContext failed: not in stage mode")
+        }
+        return context.undefined().toJSValue()
+    }
+
+    public static func test_getloadCJPage(context: JSContext, callInfo: JSCallInfo): JSValue {
+        Hilog.info(0, "cangjiePage", "test_getloadCJPage start")
+        let handle = unsafe {
+            loadCJPage()
+        }
+        return context.string("hello cangjie").toJSValue()
+    }
+
+    public static func test_getArkTSCallback(context: JSContext, callInfo: JSCallInfo): JSValue {
+        Hilog.info(0, "cangjiePage", "test_getArkTSCallback start")
+        let res = callInfo[0].asFunction(context).call([context.string("hello cangjie").toJSValue()])
+        return res
+    }
+}
+
+public enum PlayStatus <: Equatable<PlayStatus> {
+    | INIT
+    | PLAY
+    | PAUSE
+    | DONE
+
+    public operator func !=(that: PlayStatus): Bool {
+        return !(this == that)
+    }
+
+    public operator func ==(that: PlayStatus): Bool {
+        return match ((this, that)) {
+            case (INIT, INIT) => true
+            case (PLAY, PLAY) => true
+            case (PAUSE, PAUSE) => true
+            case (DONE, DONE) => true
+            case _ => false
+        }
+    }
+
+    static func GetType(result: Int32): PlayStatus {
+        match (result) {
+            case 0 => return PlayStatus.INIT
+            case 1 => return PlayStatus.PLAY
+            case 2 => return PlayStatus.PAUSE
+            case _ => return PlayStatus.DONE
+        }
+    }
+
+    func toString(): String {
+        match (this) {
+            case INIT => "PlayStatus.INIT"
+            case PLAY => "PlayStatus.PLAY"
+            case PAUSE => "PlayStatus.PAUSE"
+            case DONE => "PlayStatus.DONE"
+        }
+    }
+}
+
+public class GlobalContext {
+    static var _context: Option<StageContext> = None
+
+    public static func setContext(context: StageContext) {
+        _context = context
+    }
+
+    public static func getContext(): Option<StageContext> {
+        return _context
     }
 }
