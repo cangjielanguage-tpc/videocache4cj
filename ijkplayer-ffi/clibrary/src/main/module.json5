@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "clibrary",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

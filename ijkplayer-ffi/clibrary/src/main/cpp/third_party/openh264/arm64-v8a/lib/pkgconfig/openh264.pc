@@ -1,0 +1,10 @@
+prefix=/mnt/disk/workspace/jenkins_ci_pool_other_high_001/harmony/ohos_ijkplayer/tpc_c_cplusplus/lycium/usr/openh264/arm64-v8a/
+libdir=/mnt/disk/workspace/jenkins_ci_pool_other_high_001/harmony/ohos_ijkplayer/tpc_c_cplusplus/lycium/usr/openh264/arm64-v8a//lib
+includedir=${prefix}/include
+
+Name: OpenH264
+Description: OpenH264 is a codec library which supports H.264 encoding and decoding. It is suitable for use in real time applications such as WebRTC.
+Version: 2.4.1
+Libs: -L${libdir} -lopenh264 -lstdc++ -lpthread -lm
+Libs.private: 
+Cflags: -I${includedir}

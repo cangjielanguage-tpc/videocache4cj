@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "videocache",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

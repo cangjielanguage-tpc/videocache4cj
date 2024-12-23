@@ -1,0 +1,63 @@
+{
+  "app": {
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\admin\\.ohos\\config\\default_ijkplayer-ffi_BeDgnb53ov1K_ezBQCwC9jiNGapoUyKAeNjC_WDoXmY=.cer",
+          "storePassword": "0000001B1640E6280E164C611102A26C3E3CC735CBFF204AE5F17119EB1140B927456F44FC6164E533E7E6",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001B6E8AED114DEC598A5EF5742CFCEE559B1D5B2CD02142643683A330266AFE42FE4635661A006723",
+          "profile": "C:\\Users\\admin\\.ohos\\config\\default_ijkplayer-ffi_BeDgnb53ov1K_ezBQCwC9jiNGapoUyKAeNjC_WDoXmY=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\admin\\.ohos\\config\\default_ijkplayer-ffi_BeDgnb53ov1K_ezBQCwC9jiNGapoUyKAeNjC_WDoXmY=.p12"
+        }
+      }
+    ],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compatibleSdkVersion": "5.0.0(12)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      }
+    ],
+    "buildModeSet": [
+      {
+        "name": "debug",
+      },
+      {
+        "name": "release"
+      }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "clibrary",
+      "srcPath": "./clibrary",
+    },
+    {
+      "name": "ijkplayer",
+      "srcPath": "./ijkplayer"
+    }
+  ]
+}

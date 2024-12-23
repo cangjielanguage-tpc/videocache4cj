@@ -1,0 +1,11 @@
+prefix=/mnt/disk/workspace/jenkins_ci_pool_other_high_001/harmony/ohos_ijkplayer/tpc_c_cplusplus/lycium/usr/openssl_1_1_1w/arm64-v8a
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: OpenSSL-libssl
+Description: Secure Sockets Layer and cryptography libraries
+Version: 1.1.1w
+Requires.private: libcrypto
+Libs: -L${libdir} -lssl
+Cflags: -I${includedir}
