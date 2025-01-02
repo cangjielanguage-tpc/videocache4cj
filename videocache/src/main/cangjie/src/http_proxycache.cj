@@ -66,7 +66,7 @@ public class HttpProxyCache <: ProxyCache {
         var tempoffset = offset
         while (true) {
             let readBytes = this.read(buff, tempoffset, ProxyCacheUtils.DEFAULT_BUFFER_SIZE)
-            if (readBytes == -1) {
+            if (readBytes <= 0) {
                 break
             }
             try {

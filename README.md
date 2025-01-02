@@ -5,7 +5,7 @@
 <p align="center">
 <img alt="" src="https://img.shields.io/badge/release-v0.0.1-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/build-pass-brightgreen" style="display: inline-block;" />
-<img alt="" src="https://img.shields.io/badge/cjc-v0.53.12-brightgreen" style="display: inline-block;" />
+<img alt="" src="https://img.shields.io/badge/cjc-v0.53.15-brightgreen" style="display: inline-block;" />
 <img alt="" src="https://img.shields.io/badge/project-open-brightgreen" style="display: inline-block;" />
 </p>
 
@@ -61,23 +61,23 @@ videoCache4cj是一个支持边播放边缓存的库，只需要将音视频的u
 ### 功能示例
 
 #### 1. 把videocache作为三方库依赖引入
-当前仓颉语言三方库还不支持中心仓库，可以把依赖库克隆到本地引入，具体步骤如下：
-
-a. 目标工程把依赖库作为源码引入
-
-```shell
-> cd $工程根目录
->mkdir third-party
->cd  third-party
->git clone -b 具体分支名 https://gitcode.com/Cangjie-TPC/videocache4cj.git
-然后按照上面流程把videocache4cj库正常编译通过即可
-```
-
-b. 打开 .\entry\src\main\cangjie\cjpm.toml，添加依赖
-
-```toml
-[dependencies]
-    videocache = {path = "../对应能找到的路径../../videocache/src/main/cangjie", version = "1.0.0"}
+```cj
+用户如何在自己项目里引入videocache，具体步骤如下：
+1. 在自己项目的根目录下,建一个thirdparty目录,然后通过git命令,把自己需要的ijk分支拉下来,比如
+   git clone -b 分支名  https://gitcode.com/Cangjie-TPC/videocache4cj.git
+2. 把 thirdparty文件下的videocache项目用deveco编译通过，方法如上面的编译构建
+3. 在自己项目的根目录的build-profile.json5文件里的modules节点下添加
+    {
+      "name":"videocache",
+      "srcPath": "./thirdparty/videocache4cj/videocache"
+    }
+   把videocache库的依赖变为modeule依赖形式.然后同步项目
+4. 在自己项目的enrty里的oh-package.json5里的dependencies里加上     "videocache": "file:../thirdparty/videocache4cj/videocache",,然后同步项目
+   "dependencies": {
+      "videocache": "file:../thirdparty/videocache4cj/videocache",
+      "libark_interop_loader.so": "file:./src/main/cangjie/loader"
+  }
+   项目即依赖成功
 ```
 
 #### 2. 使用videocache生成代理url地址
@@ -187,9 +187,9 @@ class MyView {
 
 ## 约束与限制
 
-IDE : DevEco Studio NEXT Beta1(5.0.3.900)
+IDE : DevEco Studio 5.0.1 Release (5.0.5.306)
 
-Plugins (SDK) : DevEco Studio NEXT Release(5.0.3.900)
+Plugins (SDK) : DevEco Studio-Cangjie Plugin Beta1(5.0.5.300)
                 
 
 ## 开源协议

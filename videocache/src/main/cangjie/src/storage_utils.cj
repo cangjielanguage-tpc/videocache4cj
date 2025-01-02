@@ -7,7 +7,7 @@ public class StorageUtils {
     private static let INDIVIDUAL_DIR_NAME: String = "video-cache"
     public static let DEFAULT_DIR: String = '/data/storage/el2/base/haps/entry/cache'
 
-    public static func getIndividualCacheDirectory(context: AbilityContext): String {
+    public static func getIndividualCacheDirectory(): String {
         let cacheDir = StorageUtils.getCacheDirectory()
         return cacheDir.getOrThrow() + '/' + StorageUtils.INDIVIDUAL_DIR_NAME
     }

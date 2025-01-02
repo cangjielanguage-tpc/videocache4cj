@@ -9,6 +9,7 @@ public class HttpProxyCacheServerClients {
     private var uiCacheListener: ?CacheListener = None
     private var config: ?Config = None
     private var listeners = ArrayList<CacheListener>()
+    let mtx = ReentrantMutex()
 
     init(url: String, config: Config) {
         this.url = url
@@ -32,8 +33,10 @@ public class HttpProxyCacheServerClients {
     }
 
     private func startProcessRequest(): Unit {
-        if (this.proxyCache.isNone()) {
-            this.proxyCache = newHttpProxyCache()
+        synchronized(mtx) {
+            if (this.proxyCache.isNone()) {
+                this.proxyCache = newHttpProxyCache()
+            }
         }
     }
 
@@ -48,11 +51,13 @@ public class HttpProxyCacheServerClients {
     }
 
     private func finishProcessRequest(): Unit {
-        if (let Some(i) <- this.proxyCache) {
-            i.shutdown()
+        synchronized(mtx) {
+            if (let Some(i) <- this.proxyCache) {
+                i.shutdown()
+            }
+            this.proxyCache = None
+            return
         }
-        this.proxyCache = None
-        return
     }
 
     public func registerCacheListener(cacheListener: CacheListener): Unit {

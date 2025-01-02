@@ -15,6 +15,7 @@ public class HttpUrlSource <: Source {
     private var isDataFinish: Bool = false
     private var cacheData: NonBlockingQueue<Array<UInt8>> = NonBlockingQueue<Array<UInt8>>()
     private var timer: ?Timer = None
+    let mtx = ReentrantMutex()
 
     init(args: String) {
         if (args.size < 1) {
@@ -45,7 +46,7 @@ public class HttpUrlSource <: Source {
 
         timer = Timer.repeat(
             Duration.millisecond * 20,
-            Duration.millisecond * 20,
+            Duration.millisecond * 2,
             {
                 => if (let Some(i) <- this.callBack) {
                     if (!this.isHeaderDealFinish) {
@@ -83,7 +84,7 @@ public class HttpUrlSource <: Source {
         }
         timer = Timer.repeat(
             Duration.millisecond * 20,
-            Duration.millisecond * 20,
+            Duration.millisecond * 2,
             {
                 => if (let Some(i) <- this.callBack) {
                     if (!this.isHeaderDealFinish) {
@@ -134,7 +135,7 @@ public class HttpUrlSource <: Source {
 
         timer = Timer.repeat(
             Duration.millisecond * 20,
-            Duration.millisecond * 20,
+            Duration.millisecond * 2,
             {
                 => if (let Some(i) <- this.callBack) {
                     if (!this.isHeaderDealFinish) {
@@ -185,18 +186,22 @@ public class HttpUrlSource <: Source {
     }
 
     public func setDataListener(listener: DataBackListener) {
-        this.callBack = listener
+        synchronized(mtx) {
+            this.callBack = listener
+        }
     }
 
     public override func length(): Int64 {
-        this.checkInit()
-        if (let Some(i) <- this.sourceInfo) {
-            if (i.length == Int64.Min) {
-                this.fetchContentInfo()
+        synchronized(mtx) {
+            this.checkInit()
+            if (let Some(i) <- this.sourceInfo) {
+                if (i.length == Int64.Min) {
+                    this.fetchContentInfo()
+                }
+                return this.sourceInfo.getOrThrow().length
+            } else {
+                return 0
             }
-            return this.sourceInfo.getOrThrow().length
-        } else {
-            return 0
         }
     }
 
@@ -289,7 +294,7 @@ public class HttpUrlSource <: Source {
                     syncCount.dec()
                 } else {
                     this.isDataFinish = true
-                    syncCount.dec()
+                    //syncCount.dec()
                 }
             })
             let option: HttpRequestOptions = this.initRequestParam(offset, Option<Duration>.None)
@@ -309,7 +314,9 @@ public class HttpUrlSource <: Source {
                 },
                 options: option
             )
-            syncCount.waitUntilZero()
+            if (sourceInfoTemp.url.indexOf("ping").isSome()){
+                  syncCount.waitUntilZero()
+            }
             return
         } catch (e: Exception) {
             this.isHeaderDealFinish = false
@@ -362,7 +369,6 @@ public class HttpUrlSource <: Source {
             urlConnectionTemp.requestInStream(sourceInfoTemp.url, {e: ?BusinessException, value: ?UInt32 =>},
                 options: option)
             syncCount.waitUntilZero(timeout: Duration.second * 6)
-            urlConnectionTemp.destroy()
             return
         } catch (e: Exception) {
             AppLog.error("Error fetching info from " + this.sourceInfo.getOrThrow().url + e.message)
@@ -440,21 +446,23 @@ public class HttpUrlSource <: Source {
     }
 
     public func getMime(): String {
-        this.checkInit()
-        if (let Some(i) <- this.sourceInfo) {
-            if (i.mime.size < 1) {
+        synchronized(mtx) {
+            this.checkInit()
+            if (let Some(i) <- this.sourceInfo) {
+                if (i.mime.size < 1) {
+                    this.fetchContentInfo()
+                }
+            } else {
                 this.fetchContentInfo()
             }
-        } else {
-            this.fetchContentInfo()
-        }
 
-        if (let Some(i) <- this.sourceInfo) {
-            if (i.mime.size > 0) {
-                return i.mime
+            if (let Some(i) <- this.sourceInfo) {
+                if (i.mime.size > 0) {
+                    return i.mime
+                }
             }
+            throw NoneValueException("can not get sourceInfo.mime")
         }
-        throw NoneValueException("can not get sourceInfo.mime")
     }
 
     private func checkInit(): Unit {

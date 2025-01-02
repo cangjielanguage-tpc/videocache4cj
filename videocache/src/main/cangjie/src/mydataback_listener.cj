@@ -30,10 +30,12 @@ public class MyDataBackListener <: DataBackListener {
     }
 
     public override func onDataReceive(data: Array<UInt8>): Unit {
-        if (proxyCache.isStopped()) {
-            return
+        synchronized(proxyCache.stopLock) {
+            if (proxyCache.isStopped()) {
+                return
+            }
+            proxyCache.cache.getOrThrow().append(data, data.size)
         }
-        proxyCache.cache.getOrThrow().append(data, data.size)
         offset += data.size
         proxyCache.notifyNewCacheDataAvailable(offset, sourceAvailable)
     }

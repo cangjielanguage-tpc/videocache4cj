@@ -15,6 +15,7 @@ public class HttpProxyCacheServer {
     private var pinger: ?Pinger = None
     private var serverSocket: ?TcpServerSocket = None
     private var isServerReady: Bool = false
+    let mtx = ReentrantMutex()
 
     static func setLibraryVersion(version: String) {
         if (version.size >= 1) {
@@ -177,26 +178,30 @@ public class HttpProxyCacheServer {
     }
 
     public func registerCacheListener(cacheListener: CacheListener, url: String): Unit {
-        if (url.size < 1) {
-            throw NoneValueException("url is null")
-        }
-        try {
-            this.getClients(url).registerCacheListener(cacheListener)
-        } catch (e: Exception) {
-            AppLog.warn("Error registering cache listener,reason is : " + e.message)
+        synchronized(mtx) {
+            if (url.size < 1) {
+                throw NoneValueException("url is null")
+            }
+            try {
+                this.getClients(url).registerCacheListener(cacheListener)
+            } catch (e: Exception) {
+                AppLog.warn("Error registering cache listener,reason is : " + e.message)
+            }
         }
     }
 
     public func unregisterCacheListener(cacheListener: CacheListener, url: String): Unit {
-        if (url.size > 0) {
-            try {
-                this.getClients(url).unregisterCacheListener(cacheListener)
-            } catch (e: Exception) {
-                AppLog.warn("Error registering cache listener,reason is : " + e.message)
-            }
-        } else {
-            for ((k, v) in this.clientsMap) {
-                v.unregisterCacheListener(cacheListener)
+        synchronized(mtx) {
+            if (url.size > 0) {
+                try {
+                    this.getClients(url).unregisterCacheListener(cacheListener)
+                } catch (e: Exception) {
+                    AppLog.warn("Error registering cache listener,reason is : " + e.message)
+                }
+            } else {
+                for ((k, v) in this.clientsMap) {
+                    v.unregisterCacheListener(cacheListener)
+                }
             }
         }
     }
@@ -233,30 +238,36 @@ public class HttpProxyCacheServer {
     }
 
     private func shutdownClients(): Unit {
-        for ((k, v) in this.clientsMap) {
-            v.shutdown()
+        synchronized(mtx) {
+            for ((k, v) in this.clientsMap) {
+                v.shutdown()
+            }
+            this.clientsMap.clear()
         }
-        this.clientsMap.clear()
     }
 
     private func getClients(url: String): HttpProxyCacheServerClients {
-        let configTemp = this.config.getOrThrow {=> NoneValueException("config is null")}
-        if (url.size < 1) {
-            throw NoneValueException("url is null")
+        synchronized(mtx) {
+            let configTemp = this.config.getOrThrow {=> NoneValueException("config is null")}
+            if (url.size < 1) {
+                throw NoneValueException("url is null")
+            }
+            var clients = this.clientsMap.get(url)
+            if (clients.isNone()) {
+                clients = HttpProxyCacheServerClients(url, configTemp)
+                this.clientsMap.put(url, clients.getOrThrow())
+            }
+            return clients.getOrThrow()
         }
-        var clients = this.clientsMap.get(url)
-        if (clients.isNone()) {
-            clients = HttpProxyCacheServerClients(url, configTemp)
-            this.clientsMap.put(url, clients.getOrThrow())
-        }
-        return clients.getOrThrow()
     }
 
     private func getClientsCount(): Int64 {
-        var count = 0
-        for ((k, v) in this.clientsMap) {
-            count += v.getClientsCount()
+        synchronized(mtx) {
+            var count = 0
+            for ((k, v) in this.clientsMap) {
+                count += v.getClientsCount()
+            }
+            return count
         }
-        return count
     }
 }
