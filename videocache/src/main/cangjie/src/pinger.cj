@@ -3,6 +3,7 @@
  */
 package videocache
 
+
 func pingCallable(pingUrl: String) {
     var pingResult: Bool = false
     let source = HttpUrlSource(pingUrl)

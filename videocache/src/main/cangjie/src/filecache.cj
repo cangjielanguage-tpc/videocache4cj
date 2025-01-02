@@ -12,6 +12,7 @@ public class FileCache <: Cache {
     public var parentPath: String = ""
     public var fileLength: Int64 = 0
     private var isRenamedEnd: Bool = true
+    let mtx = ReentrantMutex()
 
     init(filePath: String, diskUsage: DiskUsage) {
         try {
@@ -45,34 +46,39 @@ public class FileCache <: Cache {
     }
 
     public func isCompleted(): Bool {
-        let result = !this.isTempFile(this.tempFilePath)
-        return result
+        synchronized(mtx){
+            let result = !this.isTempFile(this.tempFilePath)
+            return result
+        }
     }
 
     public func complete() {
-        try {
-            if (this.isCompleted()) {
-                return
-            }
-            this.isRenamedEnd = false
-            FileFs.fsync(this.dataFile.fd)
-            FileFs.close(this.dataFile.fd)
-            FileFs.rename(this.tempFilePath, this.trueFilePath)
-            this.tempFilePath = this.trueFilePath
+        synchronized(mtx) {
             try {
-                this.dataFile = FileFs.createRandomAccessFile(this.trueFilePath, mode: (CREATE.mode | READ_ONLY.mode))
+                if (this.isCompleted()) {
+                    return
+                }
+                this.isRenamedEnd = false
+                FileFs.fsync(this.dataFile.fd)
+                FileFs.close(this.dataFile.fd)
+                FileFs.rename(this.tempFilePath, this.trueFilePath)
+                this.tempFilePath = this.trueFilePath
+                try {
+                    this.dataFile = FileFs.createRandomAccessFile(this.trueFilePath, mode: (CREATE.mode | READ_ONLY.mode)
+                    )
+                } catch (e: Exception) {
+                    throw ProxyCacheException(
+                        "Error opening " + this.trueFilePath + " as disc cache,reason is : " + e.message)
+                }
             } catch (e: Exception) {
-                throw ProxyCacheException("Error opening " + this.trueFilePath + " as disc cache,reason is : " + e.
-                    message)
+                throw ProxyCacheException(
+                    "Error renaming file " + this.tempFilePath + " to " + this.trueFilePath +
+                    " for completion! reason is : " + e.message)
             }
-        } catch (e: Exception) {
-            throw ProxyCacheException(
-                "Error renaming file " + this.tempFilePath + " to " + this.trueFilePath + " for completion! reason is : " +
-                e.message)
+            this.isRenamedEnd = true
+            let event: InnerEvent = InnerEvent(VideoCacheConstant.RENAME_FINISH_ID, priority: EventPriority.IMMEDIATE)
+            Emitter.emit(event)
         }
-        this.isRenamedEnd = true
-        let event: InnerEvent = InnerEvent(VideoCacheConstant.RENAME_FINISH_ID, priority: EventPriority.IMMEDIATE)
-        Emitter.emit(event)
     }
 
     private func getFile(): RandomAccessFile {
@@ -84,70 +90,78 @@ public class FileCache <: Cache {
     }
 
     public override func close(): Unit {
-        try {
-            if (!this.isRenamedEnd) {
-                let event: InnerEvent = InnerEvent(VideoCacheConstant.RENAME_FINISH_ID)
-                Emitter.on(event, EventCallback("RENAME_FINISH_ID", {data: EventData =>}))
+        synchronized(mtx) {
+            try {
+                if (!this.isRenamedEnd) {
+                    let event: InnerEvent = InnerEvent(VideoCacheConstant.RENAME_FINISH_ID)
+                    Emitter.on(event, EventCallback("RENAME_FINISH_ID", {data: EventData =>}))
+                }
+                Emitter.off(VideoCacheConstant.RENAME_FINISH_ID)
+                FileFs.fsync(this.dataFile.fd)
+                FileFs.close(this.dataFile.fd)
+                return
+            } catch (e: Exception) {
+                throw ProxyCacheException("Error closing file " + this.tempFilePath + ',reason is : ' + e.message)
             }
-            Emitter.off(VideoCacheConstant.RENAME_FINISH_ID)
-            FileFs.fsync(this.dataFile.fd)
-            FileFs.close(this.dataFile.fd)
-            return
-        } catch (e: Exception) {
-            throw ProxyCacheException("Error closing file " + this.tempFilePath + ',reason is : ' + e.message)
         }
     }
 
-    public override func append(fileData: Array<UInt8>, length: Int64) {
-        try {
-            if (this.isCompleted()) {
-                throw ProxyCacheException("Error append cache: cache file " + this.tempFilePath + " is completed!")
+    public override func append(fileData: Array<UInt8>, length: Int64): Unit {
+        synchronized(mtx) {
+            try {
+                if (this.isCompleted()) {
+                    throw ProxyCacheException("Error append cache: cache file " + this.tempFilePath + " is completed!")
+                }
+                this.dataFile.write(fileData)
+                //FileFs.fsync(this.dataFile.fd)
+            } catch (e: Exception) {
+                let format = "Error writing ${length} bytes to ${this.tempFilePath}from buffer with size ${fileData.size},reason is : ${e.message}"
+                throw ProxyCacheException(format)
             }
-
-            this.dataFile.write(fileData)
-            FileFs.fsync(this.dataFile.fd)
-        } catch (e: Exception) {
-            let format = "Error writing ${length} bytes to ${this.tempFilePath}from buffer with size ${fileData.size},reason is : ${e.message}"
-            throw ProxyCacheException(format)
         }
     }
 
     public override func read(buffer: Array<UInt8>, offset: Int64, length: Int64): Int64 {
-        try {
-            if (!this.isRenamedEnd) {
-                return -1
+        synchronized(mtx) {
+            try {
+                if (!this.isRenamedEnd) {
+                    return -1
+                }
+                if (offset < 0 || length < 0) {
+                    return -1
+                }
+                if (this.fileLength > 0 && offset >= this.fileLength) {
+                    this.diskUsage?.touch(this.tempFilePath)
+                    return -1
+                }
+                if (offset >= this.available()) {
+                    return -1
+                }
+                var tempLength: Int64 = 0
+                if (offset + length >= this.fileLength && this.fileLength > 0) {
+                    tempLength = this.fileLength - offset
+                } else if (offset + length >= this.available() && this.available() > 0) {
+                    tempLength = this.available() - offset
+                } else {
+                    tempLength = length
+                }
+                let readLength = FileFs.read(this.dataFile.fd, buffer,
+                    options: ReadOptions(length: UIntNative(tempLength), offset: offset))
+                return readLength
+            } catch (e: Exception) {
+                let format = "Error reading ${length} bytes with offset ${offset} from file[${this.available()} bytes] to buffer[${buffer.size} bytes], readon is : ${e.message}"
+                throw ProxyCacheException(format)
             }
-            if (offset < 0 || length < 0) {
-                return -1
-            }
-            if (this.fileLength > 0 && offset >= this.fileLength) {
-                this.diskUsage?.touch(this.tempFilePath)
-                return -1
-            }
-            if (offset >= this.available()) {
-                return -1
-            }
-            var tempLength: Int64 = 0
-            if (offset + length >= this.fileLength && this.fileLength > 0) {
-                tempLength = this.fileLength - offset
-            } else if (offset + length >= this.available() && this.available() > 0) {
-                tempLength = this.available() - offset
-            } else {
-                tempLength = length
-            }
-            let readLength = FileFs.read(this.dataFile.fd, buffer,
-                options: ReadOptions(length: UIntNative(tempLength), offset: offset))
-            return readLength
-        } catch (e: Exception) {
-            let format = "Error reading ${length} bytes with offset ${offset} from file[${this.available()} bytes] to buffer[${buffer.size} bytes], readon is : ${e.message}"
-            throw ProxyCacheException(format)
         }
     }
 
     public func available(): Int64 {
         try {
-            let size = FileFs.stat(this.tempFilePath).size
-            return size
+            synchronized(mtx) {
+                let stat = FileFs.stat(this.tempFilePath)
+                let size = stat.size
+                return size
+            }
         } catch (e: Exception) {
             throw ProxyCacheException("Error reading length of file " + this.tempFilePath + ",reason is :    " + e.
                 message)
@@ -155,12 +169,16 @@ public class FileCache <: Cache {
     }
 
     public func setFileLength(length: Int64) {
-        if (length > 0) {
-            this.fileLength = length
+        synchronized(mtx) {
+            if (length > 0) {
+                this.fileLength = length
+            }
         }
     }
 
     public func totalLength(): Int64 {
-        return this.fileLength
+        synchronized(mtx) {
+            return this.fileLength
+        }
     }
 }

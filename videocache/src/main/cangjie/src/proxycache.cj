@@ -13,6 +13,9 @@ public open class ProxyCache {
     private var percentsAvailable: Int64 = -1
     private var timer: ?Timer = None
 
+    let mtx = ReentrantMutex()
+    public let stopLock = ReentrantMutex()
+
     init(source: Source, cache: Cache) {
         this.source = source
         this.cache = cache
@@ -50,44 +53,35 @@ public open class ProxyCache {
     }
 
     public open func shutdown(): Unit {
-        AppLog.debug("Shutdown proxy for this.source")
-        try {
-            this.stopped = true
-            if (let Some(i) <- this.timer) {
-                i.cancel()
+        synchronized(stopLock) {
+            try {
+                this.stopped = true
+                if (let Some(i) <- this.timer) {
+                    i.cancel()
+                }
+                this.closeSource()
+            } catch (e: Exception) {
+                this.onError(e)
             }
-            this.closeSource()
-        } catch (e: Exception) {
-            this.onError(e)
-        }
-        try {
-            if (let Some(i) <- this.cache) {
-                i.close()
+            try {
+                if (let Some(i) <- this.cache) {
+                    i.close()
+                }
+                this.cache = None
+            } catch (e: Exception) {
+                this.onError(e)
             }
-            this.cache = None
-        } catch (e: Exception) {
-            this.onError(e)
+            return
         }
-        return
     }
 
     private func readSourceAsync(): Unit {
-        if (!this.stopped && (this.cache.isSome() && !this.cache.getOrThrow().isCompleted()) && !this.readingInProgress) {
-            this.readSource()
-        }
-    }
-
-    private func waitForSourceData(): Unit {
-        this.timer = Timer.once(
-            Duration.second,
-            {
-                => if (let Some(i) <- this.timer) {
-                    i.cancel()
-                    this.timer = None
-                    return
-                }
+        synchronized(mtx) {
+            if (!this.stopped && (this.cache.isSome() && !this.cache.getOrThrow().isCompleted()) &&
+                !this.readingInProgress) {
+                this.readSource()
             }
-        )
+        }
     }
 
     func notifyNewCacheDataAvailable(cacheAvailable: Int64, sourceAvailable: Int64): Unit {
@@ -114,7 +108,6 @@ public open class ProxyCache {
     }
 
     private func readSource(): Unit {
-        spawn {
             let cacheTemp = this.cache.getOrThrow {=> NoneValueException("cache is null")}
             let sourceTemp = this.source.getOrThrow {=> NoneValueException("source is null")}
 
@@ -125,14 +118,12 @@ public open class ProxyCache {
                 sourceTemp.setDataListener(MyDataBackListener(this, offset, sourceAvailable))
                 this.readingInProgress = true
                 sourceTemp.open(offset)
-                this.readingInProgress = false
                 return
             } catch (e: Exception) {
                 this.readingInProgress = false
                 this.readSourceErrorsCount++
                 this.onError(e)
             }
-        }
     }
 
     func onSourceRead(): Unit {
@@ -142,13 +133,15 @@ public open class ProxyCache {
     }
 
     func tryComplete(): Unit {
-        let cacheTemp = this.cache.getOrThrow {=> NoneValueException("cache is null")}
-        let sourceTemp = this.source.getOrThrow {=> NoneValueException("source is null")}
-        this.readingInProgress = false
-        if (!this.isStopped() && cacheTemp.available() == sourceTemp.length()) {
-            cacheTemp.complete()
+        synchronized(stopLock) {
+            let cacheTemp = this.cache.getOrThrow {=> NoneValueException("cache is null")}
+            let sourceTemp = this.source.getOrThrow {=> NoneValueException("source is null")}
+            this.readingInProgress = false
+            if (!this.isStopped() && cacheTemp.available() == sourceTemp.length()) {
+                cacheTemp.complete()
+            }
+            return
         }
-        return
     }
 
     func isStopped(): Bool {

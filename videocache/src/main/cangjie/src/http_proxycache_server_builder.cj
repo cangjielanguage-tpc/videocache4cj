@@ -106,7 +106,7 @@ public class HttpProxyCacheServerBuilder {
             this.sourceInfoStorage = SourceInfoStorageFactory.newSourceInfoStorage(this.context)
         }
         if (this.cacheRoot.size < 1) {
-            this.cacheRoot = StorageUtils.getIndividualCacheDirectory(this.context)
+            this.cacheRoot = StorageUtils.getIndividualCacheDirectory()
         }
         if (this.diskUsage.isNone()) {
             this.diskUsage = TotalSizeLruDiskUsage(this.DEFAULT_MAX_SIZE)

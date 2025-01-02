@@ -24,3 +24,4 @@ internal import std.collection.*
 internal import crypto.digest.*
 internal import encoding.hex.*
 internal import ohos.hilog.*
+internal import ohos.ark_interop_helper.*
