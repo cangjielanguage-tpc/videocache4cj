@@ -26,7 +26,7 @@ public open class ProxyCache {
         if (let Some(i) <- this.cache) {
             while (!i.isCompleted() && i.available() < (offset + length) && !this.stopped) {
                 this.readSourceAsync()
-                sleep(Duration.second * 1)
+                sleep(Duration.second * 0.2)
                 this.checkReadSourceErrorsCount()
             }
             let read = i.read(buffer, offset, length)
@@ -83,6 +83,7 @@ public open class ProxyCache {
             }
         }
     }
+
 
     func notifyNewCacheDataAvailable(cacheAvailable: Int64, sourceAvailable: Int64): Unit {
         this.onCacheAvailable(cacheAvailable, sourceAvailable)

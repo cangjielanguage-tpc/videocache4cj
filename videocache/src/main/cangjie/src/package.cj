@@ -25,3 +25,10 @@ internal import crypto.digest.*
 internal import encoding.hex.*
 internal import ohos.hilog.*
 internal import ohos.ark_interop_helper.*
+internal import ohos.system_date_time.SystemDateTime
+internal import net.http.HttpRequestBuilder
+internal import net.http.ClientBuilder
+internal import net.http.Client
+internal import net.http.HttpHeaders
+internal import net.http.Protocol
+internal import net.tls.*

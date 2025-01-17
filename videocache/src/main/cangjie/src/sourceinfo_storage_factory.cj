@@ -4,7 +4,7 @@
 package videocache
 
 public class SourceInfoStorageFactory {
-    public static func newSourceInfoStorage(context: AbilityContext): SourceInfoStorage {
+    public static func newSourceInfoStorage(context: StageContext): SourceInfoStorage {
         return DatabaseSourceInfoStorage(context)
     }
 

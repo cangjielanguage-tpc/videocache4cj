@@ -10,9 +10,9 @@ public class HttpProxyCacheServerBuilder {
     private var diskUsage: ?DiskUsage = None
     private var sourceInfoStorage: ?SourceInfoStorage = None
     private var headerInjector: ?HeaderInjector = None
-    private var context: AbilityContext
+    private var context: StageContext
 
-    public init(context: AbilityContext) {
+    public init(context: StageContext) {
         this.context = context
     }
 

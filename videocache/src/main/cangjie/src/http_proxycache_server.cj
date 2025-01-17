@@ -43,7 +43,7 @@ public class HttpProxyCacheServer {
         }
     }
 
-    init(param: AbilityContext) {
+    init(param: StageContext) {
         this.config = HttpProxyCacheServerBuilder(param).buildConfig()
         try {
             let m: Random = Random()
@@ -65,7 +65,6 @@ public class HttpProxyCacheServer {
                     var readCount = 0
                     var bufTotal: ArrayList<UInt8> = ArrayList<UInt8>()
                     let buf = Array<UInt8>(4 * 1024, {i: Int64 => return 0})
-
                     readCount = client.read(buf)
                     if (readCount > 0) {
                         let usefulBuf = buf.slice(0, readCount)

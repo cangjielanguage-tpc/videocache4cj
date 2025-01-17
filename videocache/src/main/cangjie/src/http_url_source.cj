@@ -52,7 +52,12 @@ public class HttpUrlSource <: Source {
                     if (!this.isHeaderDealFinish) {
                         return
                     }
-                    if (this.sourceInfo.getOrThrow().url.indexOf("ping").isSome()) {
+                    if (this
+                        .sourceInfo
+                        .getOrThrow()
+                        .url
+                        .indexOf("ping")
+                        .isSome()) {
                         return
                     }
                     if (this.cacheData.size > 0) {
@@ -90,7 +95,12 @@ public class HttpUrlSource <: Source {
                     if (!this.isHeaderDealFinish) {
                         return
                     }
-                    if (this.sourceInfo.getOrThrow().url.indexOf("ping").isSome()) {
+                    if (this
+                        .sourceInfo
+                        .getOrThrow()
+                        .url
+                        .indexOf("ping")
+                        .isSome()) {
                         return
                     }
                     if (this.cacheData.size > 0) {
@@ -141,7 +151,12 @@ public class HttpUrlSource <: Source {
                     if (!this.isHeaderDealFinish) {
                         return
                     }
-                    if (this.sourceInfo.getOrThrow().url.indexOf("ping").isSome()) {
+                    if (this
+                        .sourceInfo
+                        .getOrThrow()
+                        .url
+                        .indexOf("ping")
+                        .isSome()) {
                         return
                     }
                     if (this.cacheData.size > 0) {
@@ -229,26 +244,71 @@ public class HttpUrlSource <: Source {
         }
     }
 
+    public func open2(): Unit {
+        this.checkInit()
+        try {
+            let sourceInfoTemp = this.sourceInfo.getOrThrow {=> NoneValueException("sourceInfo is null")}
+            this.connection2 = openConnection2(sourceInfoTemp.url)
+            let connectionTemp = this.connection2.getOrThrow {=> NoneValueException("openConnection fail")}
+            let callbackTemp = this.callBack.getOrThrow {=> NoneValueException("callBack is null")}
+            var requestBuilder = HttpRequestBuilder()
+            if (let Some(i) <- this.headerInjector) {
+                let extraHeaders = i.addHeaders(sourceInfoTemp.url)
+                if (extraHeaders.size > 0) {
+                    for (key in extraHeaders.keys()) {
+                        if (key.size > 0) {
+                            let value = extraHeaders.get(key)
+                            if (let Some(j) <- value) {
+                                if (j.size > 0) {
+                                    requestBuilder.header(key, j)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            var req = requestBuilder
+                .method("GET")
+                .url(sourceInfoTemp.url)
+                .version(Protocol.HTTP1_1)
+                .header("Content-Type", "application/json")
+                .header("Connection", "Keep-Alive")
+                .readTimeout(Duration.second * 10000)
+                .writeTimeout(Duration.millisecond * 10000)
+                .build()
+            let rsp = connectionTemp.send(req)
+            let buf = Array<UInt8>(1024, item: 0)
+            let len = rsp.body.read(buf)
+            let data = buf.slice(0, len)
+            callbackTemp.onDataReceive(data)
+            return
+        } catch (e: Exception) {
+            if (let Some(i) <- this.connection2) {
+                i.close()
+            }
+            throw ProxyCacheException("Error opening connection for " + this.sourceInfo.getOrThrow().url + e.message)
+        }
+    }
+
     public func open(offset: Int64): Unit {
         this.isHeaderDealFinish = false
         this.isDataFinish = false
         this.checkInit()
         try {
             let sourceInfoTemp = this.sourceInfo.getOrThrow {=> NoneValueException("sourceInfo is null")}
-            let sourceInfoStorageTemp = this.sourceInfoStorage.getOrThrow {
-                => NoneValueException("sourceInfoStorage is null")
-            }
+            let sourceInfoStorageTemp = this
+                .sourceInfoStorage
+                .getOrThrow {
+                    => NoneValueException("sourceInfoStorage is null")
+                }
             var mime: String = ""
-            let syncCount = SyncCounter(1)
             this.connection = openConnection()
             let connectionTemp = this.connection.getOrThrow {=> NoneValueException("openConnection fail")}
             let callbackTemp = this.callBack.getOrThrow {=> NoneValueException("callBack is null")}
 
             connectionTemp.onHeadersReceive(
                 {
-                headers => if (sourceInfoTemp.url.indexOf("ping").isSome()) {
-                    callbackTemp.onDataStart()
-                } else {
+                    headers =>
                     if (!headers.isEmpty()) {
                         if (let Some(i) <- headers as HashMap<String, String>) {
                             var mime: String = ""
@@ -269,16 +329,12 @@ public class HttpUrlSource <: Source {
                     }
                     this.isHeaderDealFinish = true
                 }
-            })
+            )
+
             connectionTemp.onDataReceive(
                 {
                     data =>
-                    if (sourceInfoTemp.url.indexOf("ping").isSome()) {
-                        callbackTemp.onDataReceive(data)
-                        syncCount.dec()
-                    } else {
-                        this.cacheData.enqueue(data)
-                    }
+                    this.cacheData.enqueue(data)
                     return
                 }
             )
@@ -287,15 +343,8 @@ public class HttpUrlSource <: Source {
                 progress => this.callBack?.onDataProgress(progress)
             })
 
-            connectionTemp.onDataEnd(
-                {
-                => if (sourceInfoTemp.url.indexOf("ping").isSome()) {
-                    callbackTemp.onDataEnd()
-                    syncCount.dec()
-                } else {
-                    this.isDataFinish = true
-                    //syncCount.dec()
-                }
+            connectionTemp.onDataEnd({
+                => this.isDataFinish = true
             })
             let option: HttpRequestOptions = this.initRequestParam(offset, Option<Duration>.None)
             this.cacheData = NonBlockingQueue<Array<UInt8>>()
@@ -314,9 +363,6 @@ public class HttpUrlSource <: Source {
                 },
                 options: option
             )
-            if (sourceInfoTemp.url.indexOf("ping").isSome()){
-                  syncCount.waitUntilZero()
-            }
             return
         } catch (e: Exception) {
             this.isHeaderDealFinish = false
@@ -325,50 +371,108 @@ public class HttpUrlSource <: Source {
             }
             throw ProxyCacheException(
                 "Error opening connection for " + this.sourceInfo.getOrThrow().url + " with offset " + offset.toString() +
-                e.message)
+                    e.message)
+        }
+    }
+
+    private var connection2: ?Client = None
+
+    private func openConnection2(url: String): Client {
+        try {
+            if (let Some(i) <- this.connection2) {
+                i.close()
+            }
+            this.connection2 = None
+        } catch (e: Exception) {
+            this.connection2 = None
+        }
+        var tlsconfig = TlsClientConfig()
+        tlsconfig.verifyMode = TrustAll
+        tlsconfig.domain = getDomain(url)
+        this.connection2 = ClientBuilder().tlsConfig(tlsconfig).build()
+        return this.connection2.getOrThrow()
+    }
+
+    private func getDomain(url: String):String {
+        var domain: String = ""
+        if (url.startsWith("http") || url.startsWith("https")) {
+            let index1: Int64 = url.indexOf("://") ?? 0
+            if (index1 > 0) {
+                domain = url[(index1 + 3)..url.size]
+                let index2: Int64 = domain.indexOf("/") ?? -1
+                if (index2 != -1) {
+                    domain = domain[0..index2]
+                }
+            }
+        }
+        return domain
+    }
+
+    private func getContentLength2(responseheaders: HttpHeaders): Int64 {
+        if (!responseheaders.isEmpty()) {
+            let result1: Option<String> = responseheaders.getFirst("Content-Length")
+            if (let Some(j) <- result1) {
+                return Int64.parse(j)
+            }
+            let result2: Option<String> = responseheaders.getFirst("content-length")
+            if (let Some(j) <- result2) {
+                return Int64.parse(j)
+            }
+            return -1
+        } else {
+            return -1
         }
     }
 
     private func fetchContentInfo(): Unit {
         this.checkInit()
-        var urlConnection: ?HttpRequest = None
         try {
-            let syncCount = SyncCounter(1)
-            urlConnection = this.openConnection()
-
-            let urlConnectionTemp = urlConnection.getOrThrow {=> NoneValueException("openConnection fail")}
+            var requestBuilder = HttpRequestBuilder()
             let sourceInfoTemp = this.sourceInfo.getOrThrow {=> NoneValueException("sourceInfo is null")}
-
-            AppLog.debug("Read content info from " + this.sourceInfo.getOrThrow().url)
-            urlConnectionTemp.onceHeadersReceive(
-                {
-                    headers =>
-                    if (!headers.isEmpty()) {
-                        let length = this.getContentLength(headers)
-                        if (let Some(i) <- headers as HashMap<String, String>) {
-                            var mime: String = ""
-                            let result1: Option<String> = i.get("content-type")
-                            if (let Some(j) <- result1) {
-                                mime = j
-                            } else {
-                                let result2: Option<String> = i.get("Content-Type")
-                                if (let Some(k) <- result2) {
-                                    mime = k
+            this.connection2 = openConnection2(sourceInfoTemp.url)
+            let connectionTemp = this.connection2.getOrThrow {=> NoneValueException("openConnection fail")}
+            if (let Some(i) <- this.headerInjector) {
+                let extraHeaders = i.addHeaders(sourceInfoTemp.url)
+                if (extraHeaders.size > 0) {
+                    for (key in extraHeaders.keys()) {
+                        if (key.size > 0) {
+                            let value = extraHeaders.get(key)
+                            if (let Some(j) <- value) {
+                                if (j.size > 0) {
+                                    requestBuilder.header(key, j)
                                 }
                             }
-                            this.sourceInfo = SourceInfo(sourceInfoTemp.url, length, mime)
-                            this.sourceInfoStorage?.put(sourceInfoTemp.url, sourceInfoTemp)
-                            AppLog.debug("Source info fetched: " + this.sourceInfo.getOrThrow().toString())
                         }
                     }
-                    syncCount.dec()
-                    return
                 }
-            )
-            let option = this.initRequestParam(0, Duration.millisecond * 10000)
-            urlConnectionTemp.requestInStream(sourceInfoTemp.url, {e: ?BusinessException, value: ?UInt32 =>},
-                options: option)
-            syncCount.waitUntilZero(timeout: Duration.second * 6)
+            }
+            let req = requestBuilder
+                .method("GET")
+                .url(sourceInfoTemp.url)
+                .version(Protocol.HTTP1_1)
+                .header("Content-Type", "application/json")
+                .header("Connection", "Keep-Alive")
+                .readTimeout(Duration.second * 10000)
+                .writeTimeout(Duration.millisecond * 10000)
+                .build()
+            let rsp = connectionTemp.send(req)
+            let responseheaders = rsp.headers
+            if (!responseheaders.isEmpty()) {
+                let length = this.getContentLength2(responseheaders)
+                var mime: String = ""
+                let result1: Option<String> = responseheaders.getFirst("content-type")
+                if (let Some(j) <- result1) {
+                    mime = j
+                } else {
+                    let result2: Option<String> = responseheaders.getFirst("Content-Type")
+                    if (let Some(k) <- result2) {
+                        mime = k
+                    }
+                }
+                this.sourceInfo = SourceInfo(sourceInfoTemp.url, length, mime)
+                this.sourceInfoStorage?.put(sourceInfoTemp.url, sourceInfoTemp)
+                AppLog.debug("Source info fetched: " + this.sourceInfo.getOrThrow().toString())
+            }
             return
         } catch (e: Exception) {
             AppLog.error("Error fetching info from " + this.sourceInfo.getOrThrow().url + e.message)
