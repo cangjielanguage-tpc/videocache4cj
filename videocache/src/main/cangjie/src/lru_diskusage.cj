@@ -30,6 +30,7 @@ public open class LruDiskUsage <: DiskUsage {
         this.list = ArrayList()
     }
 
+
     public func touch(filePath: String): Unit {
         if (filePath.size < 1 || !filePath.startsWith(StorageUtils.DEFAULT_DIR)) {
             return

@@ -16,9 +16,9 @@ public class DatabaseSourceInfoStorage <: SourceInfoStorage {
         " TEXT," + this.COLUMN_LENGTH + " INTEGER" + ");"
     private var store: ?RdbStore = None
 
-    init(context: AbilityContext) {
+    init(context: StageContext) {
         let STORE_CONFIG: StoreConfig = StoreConfig(this.DB_NAME, SecurityLevel.S1)
-        var rdbStore: RdbStore = getRdbStore(getStageContext(context), STORE_CONFIG)
+        var rdbStore: RdbStore = getRdbStore(context, STORE_CONFIG)
         this.store = rdbStore
         createTable()
     }

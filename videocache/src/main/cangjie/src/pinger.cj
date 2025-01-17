@@ -4,13 +4,14 @@
 package videocache
 
 
+
 func pingCallable(pingUrl: String) {
     var pingResult: Bool = false
     let source = HttpUrlSource(pingUrl)
     try {
         let expectedResponse = VideoCacheConstant.PING_RESPONSE
         source.setDataListener(TempPingDataBackListener(pingResult))
-        source.open(0)
+        source.open2()
     } catch (e: Exception) {
         AppLog.error("Error reading ping response,reason is " + e.message)
         pingResult = false

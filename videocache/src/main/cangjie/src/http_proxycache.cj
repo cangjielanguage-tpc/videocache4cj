@@ -42,16 +42,6 @@ public class HttpProxyCache <: ProxyCache {
         serverConnect.write(responseHeaders.toArray())
         this.offset = request.rangeOffset
         this.stopped = false
-        if (let Some(i) <- this.cache) {
-            if (let Some(j) <- this.source) {
-                let available = i.available()
-                let length = j.length()
-                if (length > 0) {
-                    let percent = Float64(Float64(available) * 100.0 / Float64(length))
-                    this.onCachePercentsAvailableChanged(Int64(percent))
-                }
-            }
-        }
         if (this.isUseCache(request)) {
             this.responseWithCache(this.offset, serverConnect)
         } else {
