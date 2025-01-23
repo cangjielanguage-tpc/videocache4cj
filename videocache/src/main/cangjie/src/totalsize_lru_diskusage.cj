@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
 
@@ -14,7 +14,7 @@ public class TotalSizeLruDiskUsage <: LruDiskUsage {
         this.maxSize = maxSize
     }
 
-    public override func accept(file: String, totalSize: Int64, totalCount: Int64): Bool {
+    public override func accept(_: String, totalSize: Int64, _: Int64): Bool {
         return totalSize <= this.maxSize
     }
 }

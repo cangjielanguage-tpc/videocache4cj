@@ -87,7 +87,7 @@ videoCache4cj是一个支持边播放边缓存的库，只需要将音视频的u
 ```cangjie
 
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package ohos_app_cangjie_entry
 
@@ -132,7 +132,7 @@ public class GlobalProxyServer {
 
 
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 
 package ohos_app_cangjie_entry

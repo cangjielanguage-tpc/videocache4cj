@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
 
@@ -30,7 +30,7 @@ public class MyDataBackListener <: DataBackListener {
     }
 
     public override func onDataReceive(data: Array<UInt8>): Unit {
-        synchronized(proxyCache.stopLock) {
+        synchronized(proxyCache.getStopLock()) {
             if (proxyCache.isStopped()) {
                 return
             }
@@ -40,6 +40,6 @@ public class MyDataBackListener <: DataBackListener {
         proxyCache.notifyNewCacheDataAvailable(offset, sourceAvailable)
     }
 
-    public override func onDataProgress(progress: DataReceiveProgressInfo): Unit {
+    public override func onDataProgress(_: DataReceiveProgressInfo): Unit {
     }
 }

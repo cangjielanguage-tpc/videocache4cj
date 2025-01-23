@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
 
@@ -34,6 +34,6 @@ public class TempDataBackListener <: DataBackListener {
         }
     }
 
-    public override func onDataProgress(progress: DataReceiveProgressInfo) {
+    public override func onDataProgress(_: DataReceiveProgressInfo) {
     }
 }

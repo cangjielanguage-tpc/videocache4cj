@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
 
@@ -14,12 +14,16 @@ public open class ProxyCache {
     private var timer: ?Timer = None
 
     let mtx = ReentrantMutex()
-    public let stopLock = ReentrantMutex()
+    private let stopLock = ReentrantMutex()
 
     init(source: Source, cache: Cache) {
         this.source = source
         this.cache = cache
         this.stopped = false
+    }
+
+    public func getStopLock():ReentrantMutex{
+        return stopLock
     }
 
     public func read(buffer: Array<UInt8>, offset: Int64, length: Int64): Int64 {
@@ -105,7 +109,7 @@ public open class ProxyCache {
         this.percentsAvailable = percents
     }
 
-    protected open func onCachePercentsAvailableChanged(percentsAvailable: Int64): Unit {
+    protected open func onCachePercentsAvailableChanged(_: Int64): Unit {
     }
 
     private func readSource(): Unit {
