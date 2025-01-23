@@ -1,22 +1,22 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
 
 public class Files {
     static func makeDir(directory: String): Unit {
         if (directory.size < 1) {
-            throw IOException("directory can not be null!")
+            throw FileException("directory can not be null!")
         }
         if (FileFs.access(directory)) {
             if (!FileFs.stat(directory).isDirectory()) {
-                throw IOException("File " + directory + " is not directory!")
+                throw FileException("File " + directory + " is not directory!")
             }
         } else {
             try {
                 FileFs.mkdir(directory, true)
             } catch (e: Exception) {
-                throw IOException("Directory ${directory} can't be created,reason is :${e.message}")
+                throw FileException("Directory ${directory} can't be created,reason is :${e.message}")
             }
         }
     }
@@ -55,7 +55,7 @@ public class Files {
                 //TODO
                 FileFs.utimes(file, Float64(DateTime.now().toUnixTimeStamp().toNanoseconds()))
             } catch (e: Exception) {
-                throw IOException("Last modified date is not set for file ${file},reason is ${e.message}")
+                throw FileException("Last modified date is not set for file ${file},reason is ${e.message}")
             }
         } else {
             AppLog.error("file ${file} IS not exist")
@@ -80,7 +80,7 @@ public class Files {
                 FileFs.close(fd)
             }
         } catch (e: Exception) {
-            throw IOException("Error recreate zero-size file--- " + file)
+            throw FileException("Error recreate zero-size file--- " + file)
         }
     }
 }

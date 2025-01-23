@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
 
@@ -9,7 +9,7 @@ public open class LruDiskUsage <: DiskUsage {
     private var totalSize: Int64 = 0
     private var totalCount: Int64 = 0
 
-    public open func accept(file: String, totalSize: Int64, totalCount: Int64): Bool {
+    public open func accept(_: String, _: Int64, _: Int64): Bool {
         return false
     }
 

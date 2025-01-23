@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights resvered.
+ * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
 
@@ -46,7 +46,7 @@ public class FileCache <: Cache {
     }
 
     public func isCompleted(): Bool {
-        synchronized(mtx){
+        synchronized(mtx) {
             let result = !this.isTempFile(this.tempFilePath)
             return result
         }
@@ -73,7 +73,7 @@ public class FileCache <: Cache {
             } catch (e: Exception) {
                 throw ProxyCacheException(
                     "Error renaming file " + this.tempFilePath + " to " + this.trueFilePath +
-                    " for completion! reason is : " + e.message)
+                        " for completion! reason is : " + e.message)
             }
             this.isRenamedEnd = true
             let event: InnerEvent = InnerEvent(VideoCacheConstant.RENAME_FINISH_ID, priority: EventPriority.IMMEDIATE)
@@ -113,7 +113,7 @@ public class FileCache <: Cache {
                     throw ProxyCacheException("Error append cache: cache file " + this.tempFilePath + " is completed!")
                 }
                 this.dataFile.write(fileData)
-                //FileFs.fsync(this.dataFile.fd)
+            //FileFs.fsync(this.dataFile.fd)
             } catch (e: Exception) {
                 let format = "Error writing ${length} bytes to ${this.tempFilePath}from buffer with size ${fileData.size},reason is : ${e.message}"
                 throw ProxyCacheException(format)
@@ -138,12 +138,19 @@ public class FileCache <: Cache {
                     return -1
                 }
                 var tempLength: Int64 = 0
+
                 if (offset + length >= this.fileLength && this.fileLength > 0) {
                     tempLength = this.fileLength - offset
-                } else if (offset + length >= this.available() && this.available() > 0) {
-                    tempLength = this.available() - offset
                 } else {
-                    tempLength = length
+                    if (offset + length >= this.available()) {
+                        if (this.available() > 0) {
+                            tempLength = this.available() - offset
+                        } else {
+                            tempLength = length
+                        }
+                    } else {
+                        tempLength = length
+                    }
                 }
                 let readLength = FileFs.read(this.dataFile.fd, buffer,
                     options: ReadOptions(length: UIntNative(tempLength), offset: offset))
@@ -156,15 +163,15 @@ public class FileCache <: Cache {
     }
 
     public func available(): Int64 {
-        try {
-            synchronized(mtx) {
+        synchronized(mtx) {
+            try {
                 let stat = FileFs.stat(this.tempFilePath)
                 let size = stat.size
                 return size
+            } catch (e: Exception) {
+                throw ProxyCacheException(
+                    "Error reading length of file " + this.tempFilePath + ",reason is :    " + e.message)
             }
-        } catch (e: Exception) {
-            throw ProxyCacheException("Error reading length of file " + this.tempFilePath + ",reason is :    " + e.
-                message)
         }
     }
 
