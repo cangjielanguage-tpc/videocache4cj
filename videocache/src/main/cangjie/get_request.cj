@@ -31,7 +31,7 @@ public class GetRequest {
                 if (i.size < 1) {
                     return -1
                 }
-                let rangeValue = i[0].matchStr()
+                let rangeValue = i[0].matchString()
                 return Int64.parse(rangeValue.split("=")[1].split("-")[0])
             } else {
                 return -1
@@ -44,10 +44,10 @@ public class GetRequest {
     private func findUri(request: String): String {
         let matcher: Option<Array<MatchData>> = this.URL_PATTERN.matcher(request).findAll()
         if (let Some(i) <- matcher) {
-            if (i.size < 1 || (i[0].matchStr().size < 1)) {
+            if (i.size < 1 || (i[0].matchString().size < 1)) {
                 throw IllegalArgumentException("Invalid request `")
             }
-            return i[0].matchStr()[5..i[0].matchStr().size - 5] //TODO 删前删后
+            return i[0].matchString()[5..i[0].matchString().size - 5] //TODO 删前删后
         } else {
             throw IllegalArgumentException("Invalid request `" + request + "`: url not found!")
         }

@@ -10,12 +10,11 @@ internal import ohos.ability.*
 internal import ohos.state_manage.*
 internal import ohos.window.*
 
-internal import cj_res_entry.*
 
 internal import std.collection.*
 internal import videocache.*
 internal import std.sync.*
-internal import net.http.ServerBuilder
+internal import stdx.net.http.ServerBuilder
 internal import ohos.net.http.*
 internal import ohos.hilog.*
 internal import ohos.file_fs.*

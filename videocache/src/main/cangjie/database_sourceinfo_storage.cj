@@ -95,9 +95,9 @@ public class DatabaseSourceInfoStorage <: SourceInfoStorage {
 
     private func convert(sourceInfo: SourceInfo): Map<String, ValueType> {
         let values: HashMap<String, ValueType> = HashMap<String, ValueType>()
-        values.put("URL", ValueType.string(sourceInfo.url))
-        values.put("LENGTH", ValueType.integer(sourceInfo.length))
-        values.put("MIME", ValueType.string(sourceInfo.mime))
+        values.add("URL", ValueType.string(sourceInfo.url))
+        values.add("LENGTH", ValueType.integer(sourceInfo.length))
+        values.add("MIME", ValueType.string(sourceInfo.mime))
         return values
     }
 }
