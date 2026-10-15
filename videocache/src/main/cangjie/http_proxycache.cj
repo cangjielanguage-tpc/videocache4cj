@@ -75,7 +75,7 @@ public class HttpProxyCache <: ProxyCache {
 
     private func responseWithoutCache(offset: Int64, serverConnect: TcpSocket): Unit {
         let sourceTemp = this.source.getOrThrow {=> NoneValueException("source is null")}
-        if (let Some(j) <- sourceTemp as HttpUrlSource) {
+        if (let Some(j) <- (sourceTemp as HttpUrlSource)) {
             let newSourceNoCache = HttpUrlSource(j)
             try {
                 newSourceNoCache.setDataListener(TempDataBackListener(j, this, offset, serverConnect))
@@ -102,7 +102,7 @@ public class HttpProxyCache <: ProxyCache {
         let sourceTemp = this.source.getOrThrow {=> NoneValueException("source is null")}
         let cacheTemp = this.cache.getOrThrow {=> NoneValueException("cache is null")}
         var mime = ""
-        if (let Some(i) <- sourceTemp as HttpUrlSource) {
+        if (let Some(i) <- (sourceTemp as HttpUrlSource)) {
             mime = i.getMime()
         }
         var mimeKnown = false

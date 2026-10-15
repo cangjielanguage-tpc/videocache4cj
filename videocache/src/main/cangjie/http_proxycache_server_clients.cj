@@ -61,7 +61,7 @@ public class HttpProxyCacheServerClients {
     }
 
     public func registerCacheListener(cacheListener: CacheListener): Unit {
-        this.listeners.append(cacheListener)
+        this.listeners.add(cacheListener)
     }
 
     public func unregisterCacheListener(cacheListener: CacheListener): Unit {

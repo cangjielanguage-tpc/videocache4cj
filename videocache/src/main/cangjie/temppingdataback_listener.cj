@@ -23,8 +23,8 @@ public class TempPingDataBackListener <: DataBackListener {
             AppLog.info("Ping response: `" + response + "`, pinged? " + pingResult.toString())
             pingResult = expectedResponse == response
             let p = HashMap<String, EventDataType>()
-            p.put("content", BOOL(pingResult))
-            p.put("id", INT64(Int64(VideoCacheConstant.PING_EVENT_ID)))
+            p.add("content", BOOL(pingResult))
+            p.add("id", INT64(Int64(VideoCacheConstant.PING_EVENT_ID)))
             let eventData: EventData = EventData(p)
             let event: InnerEvent = InnerEvent(VideoCacheConstant.PING_EVENT_ID, priority: EventPriority.IMMEDIATE)
             Emitter.emit(event, data: eventData)
