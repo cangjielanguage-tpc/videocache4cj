@@ -49,7 +49,7 @@ public class ProxyCacheUtils {
             if (fileName.size >= 1) {
                 let regExp = Regex("[a-zA-Z_0-9\\.\\-\\(\\)\\%]+")
                 let isMatch = regExp.matches(fileName)
-                if (isMatch.isSome()) {
+                if (isMatch) {
                     let dotPos = fileName.lastIndexOf(".") ?? -1
                     if (dotPos >= 0) {
                         return fileName[dotPos + 1..]

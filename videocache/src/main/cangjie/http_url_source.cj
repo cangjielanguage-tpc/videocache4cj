@@ -2,6 +2,7 @@
  * Copyright (c) Huawei Technologies Co., Ltd. 2024-2024. All rights reserved.
  */
 package videocache
+import stdx.net.tls.common.CertificateVerifyMode
 
 public class HttpUrlSource <: Source {
     private let MAX_REDIRECTS: Int64 = 5
@@ -229,7 +230,7 @@ public class HttpUrlSource <: Source {
     }
 
     private func getContentLength(receiveHeader: HashMap<String, String>): Int64 {
-        if (let Some(i) <- receiveHeader as HashMap<String, String>) {
+        if (let Some(i) <- (receiveHeader as HashMap<String, String>)) {
             let result1: Option<String> = i.get("Content-Length")
             if (let Some(j) <- result1) {
                 return Int64.parse(j)
@@ -277,7 +278,7 @@ public class HttpUrlSource <: Source {
                 .writeTimeout(Duration.millisecond * 10000)
                 .build()
             let rsp = connectionTemp.send(req)
-            let buf = Array<UInt8>(1024, item: 0)
+            let buf = Array<UInt8>(1024, repeat: 0)
             let len = rsp.body.read(buf)
             let data = buf.slice(0, len)
             callbackTemp.onDataReceive(data)
@@ -310,7 +311,7 @@ public class HttpUrlSource <: Source {
                 {
                     headers =>
                     if (!headers.isEmpty()) {
-                        if (let Some(i) <- headers as HashMap<String, String>) {
+                        if (let Some(i) <- (headers as HashMap<String, String>)) {
                             var mime: String = ""
                             let result1: Option<String> = i.get("content-type")
                             if (let Some(j) <- result1) {
@@ -387,8 +388,8 @@ public class HttpUrlSource <: Source {
             this.connection2 = None
         }
         var tlsconfig = TlsClientConfig()
-        tlsconfig.verifyMode = TrustAll
-        tlsconfig.domain = getDomain(url)
+        tlsconfig.verifyMode = CertificateVerifyMode.TrustAll
+        tlsconfig.serverName = getDomain(url)
         this.connection2 = ClientBuilder().tlsConfig(tlsconfig).build()
         return this.connection2.getOrThrow()
     }
@@ -498,8 +499,8 @@ public class HttpUrlSource <: Source {
 
     private func initRequestParam(offset: Int64, timeout: ?Duration): HttpRequestOptions {
         var headerHashMap: HashMap<String, String> = HashMap<String, String>()
-        headerHashMap.put("Content-Type", "application/json")
-        headerHashMap.put("Connection", "Keep-Alive")
+        headerHashMap.add("Content-Type", "application/json")
+        headerHashMap.add("Connection", "Keep-Alive")
         var option: ?HttpRequestOptions = None
         if (let Some(i) <- timeout) {
             option = HttpRequestOptions(method: RequestMethod.GET, header: headerHashMap,
@@ -514,7 +515,7 @@ public class HttpUrlSource <: Source {
             optionNotNull = this.injectCustomHeaders(optionNotNull, i.url)
             if (let Some(j) <- optionNotNull.header) {
                 if (offset > 0) {
-                    j.put("Range", "bytes=" + offset.toString() + "-")
+                    j.add("Range", "bytes=" + offset.toString() + "-")
                 }
                 return optionNotNull
             } else {
@@ -537,7 +538,7 @@ public class HttpUrlSource <: Source {
                     if (let Some(j) <- value) {
                         if (j.size > 0) {
                             if (let Some(k) <- option.header) {
-                                k.put(key, j)
+                                k.add(key, j)
                             }
                         }
                     }

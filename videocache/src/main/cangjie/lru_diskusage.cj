@@ -45,7 +45,7 @@ public open class LruDiskUsage <: DiskUsage {
 
             for (i in 0..files.size) {
                 let singleFile = files.get(i).getOrThrow()
-                list.append(singleFile)
+                list.add(singleFile)
             }
             totalSize = countTotalSize(list)
             totalCount = files.size

@@ -24,7 +24,7 @@ public class GlobalProxyServer {
     }
 
     func setContext(context: AbilityContext) {
-        this._objects.put(this.CONTEXT_STR, context)
+        this._objects.add(this.CONTEXT_STR, context)
     }
 
     func getServer(): HttpProxyCacheServer {
@@ -37,6 +37,6 @@ public class GlobalProxyServer {
             currentServer.shutdown()
         } catch (e: Exception) {
         }
-        this._objects.put(this.SERVER_STR, server)
+        this._objects.add(this.SERVER_STR, server)
     }
 }

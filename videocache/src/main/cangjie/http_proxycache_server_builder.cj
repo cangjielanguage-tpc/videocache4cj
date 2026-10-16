@@ -55,8 +55,8 @@ public class HttpProxyCacheServerBuilder {
      * @param maxSize max cache size in bytes.
      * @return a builder.
      */
-    public func maxCacheSize(maxSize: Int64): HttpProxyCacheServerBuilder {
-        this.diskUsage = TotalSizeLruDiskUsage(maxSize)
+    public func maxCacheSize(maxSize: UInt64): HttpProxyCacheServerBuilder {
+        this.diskUsage = TotalSizeLruDiskUsage(Int64(maxSize))
         return this
     }
 
@@ -68,8 +68,8 @@ public class HttpProxyCacheServerBuilder {
      * @param count max cache files count.
      * @return a builder.
      */
-    public func maxCacheFilesCount(count: Int64): HttpProxyCacheServerBuilder {
-        this.diskUsage = TotalCountLruDiskUsage(count)
+    public func maxCacheFilesCount(count: UInt64): HttpProxyCacheServerBuilder {
+        this.diskUsage = TotalCountLruDiskUsage(Int64(count))
         return this
     }
 

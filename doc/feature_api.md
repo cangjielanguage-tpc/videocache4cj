@@ -4,13 +4,6 @@
 ### 介绍
 videoCache4cj是一个支持边播放边缓存的库，只需要将音视频的url传递给videoCache4cj处理之后再设置给播放器，videoCache4cj就可以一边下载音视频数据并保存在本地，一遍读取本地缓存返回给播放器，使用者无需进行其他操作。
 
-- 🚀 1.自定义设置缓存文件夹位置
-- 🚀 2.设置最大缓存数据清理策略
-- 🚀 3.添加请求头
-- 🚀 4.使用自定义的缓存文件命名规则
-- 🚀 5.注册/取消注册缓存进度监听器
-- 🚀 6.设置自定义的缓存文件清理规则
-
 ### 1 videocache4cj 视频缓存库
 
 #### 1.1 HttpProxyCacheServer 代理缓存服务类
@@ -93,16 +86,16 @@ public class HttpProxyCacheServerBuilder {
      * @参数 maxSize - Int64最大缓存大小 单位字节
      * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
      */
-    public func maxCacheSize(maxSize: Int64): HttpProxyCacheServerBuilder
+    public func maxCacheSize(maxSize: UInt64): HttpProxyCacheServerBuilder
 
     
     /**
-     * 设置最大缓存数量大小
+     * 设置最大可添加缓存文件个数
      * 
      * @参数 count - 缓存文件的数量
      * @返回值 HttpProxyCacheServerBuilder 代理缓存服务类构建对象
      */
-    public func maxCacheFilesCount(count: Int64): HttpProxyCacheServerBuilder
+    public func maxCacheFilesCount(count: UInt64): HttpProxyCacheServerBuilder
 
 
     /**
@@ -122,5 +115,65 @@ public class HttpProxyCacheServerBuilder {
      */
     public func setHeaderInjector(headerInjector: HeaderInjector): HttpProxyCacheServerBuilder
 
+}
+```
+#### 1.3 DiskUsage 自定义缓存清理策略类
+
+```cangjie
+public interface DiskUsage {    
+    /**
+     * 缓存清理方法
+     * 
+     * @参数 filePath - String 缓存文件路径
+     */
+    func touch(filePath: String): Unit
+    
+}
+```
+
+
+#### 1.4 HeaderInjector 自定义添加请求头类
+
+```cangjie
+public interface HeaderInjector {
+    /**
+     * 自定义添加请求头方法
+     * 
+     * @参数 url - String 请求的url网络地址
+     * @返回值 HashMap<String, String> 自定义添加的请求头
+     */
+    func addHeaders(url: String): HashMap<String, String>
+    
+}
+```
+
+#### 1.5 FileNameGenerator 自定义缓存文件名字生成类
+
+```cangjie
+public interface FileNameGenerator {
+    /**
+     * 自定义缓存文件名字生成方法
+     * 
+     * @参数 url - String 请求的url视频网络地址
+     * @返回值 String 生成的缓存文件的名字
+     */
+    func generate(url: String): String
+    
+}
+```
+
+#### 1.6 CacheListener 缓存下载进度监听类
+
+```cangjie
+public interface CacheListener {
+    /**
+     * 缓存下载进度监听方法
+     * 
+     * @参数 cacheFilePath - String 缓存文件的路径
+     * @参数 url - String 视频的url地址
+     * @参数 percentsAvailable - Int64 视频的下载进度百分比
+     */
+    func onCacheAvailable(cacheFilePath: String, url: String, percentsAvailable: Int64): Unit
+    
 }
 ```
