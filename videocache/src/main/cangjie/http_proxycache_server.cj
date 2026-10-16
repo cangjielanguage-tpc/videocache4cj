@@ -68,7 +68,7 @@ public class HttpProxyCacheServer {
                     readCount = client.read(buf)
                     if (readCount > 0) {
                         let usefulBuf = buf.slice(0, readCount)
-                        bufTotal.appendAll(usefulBuf)
+                        bufTotal.add(all:usefulBuf)
                     }
                     processSocket(bufTotal.toArray(), client)
                 }
@@ -254,7 +254,7 @@ public class HttpProxyCacheServer {
             var clients = this.clientsMap.get(url)
             if (clients.isNone()) {
                 clients = HttpProxyCacheServerClients(url, configTemp)
-                this.clientsMap.put(url, clients.getOrThrow())
+                this.clientsMap.add(url, clients.getOrThrow())
             }
             return clients.getOrThrow()
         }

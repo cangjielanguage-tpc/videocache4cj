@@ -28,7 +28,7 @@ public class Files {
             let files = FileFs.listFile(directory, options: option)
             if (files.size > 0) {
                 for (i in 0..files.size) {
-                    result.append(directory + files[i])
+                    result.add(directory + files[i])
                 }
                 let len = result.size
                 for (i in 0..len - 1) {
